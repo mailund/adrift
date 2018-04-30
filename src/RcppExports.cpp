@@ -5,31 +5,11 @@
 
 using namespace Rcpp;
 
-// new_graph_
-RcppExport SEXP new_graph_();
-RcppExport SEXP _adrift_new_graph_() {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(new_graph_());
-    return rcpp_result_gen;
-END_RCPP
-}
-// new_node_
-RcppExport SEXP new_node_(std::string name);
-RcppExport SEXP _adrift_new_node_(SEXP nameSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::string >::type name(nameSEXP);
-    rcpp_result_gen = Rcpp::wrap(new_node_(name));
-    return rcpp_result_gen;
-END_RCPP
-}
+
+RcppExport SEXP _rcpp_module_boot_Graph();
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_adrift_new_graph_", (DL_FUNC) &_adrift_new_graph_, 0},
-    {"_adrift_new_node_", (DL_FUNC) &_adrift_new_node_, 1},
+    {"_rcpp_module_boot_Graph", (DL_FUNC) &_rcpp_module_boot_Graph, 0},
     {NULL, NULL, 0}
 };
 

@@ -1,15 +1,13 @@
-#include "graph.hpp"
-
 #include <Rcpp.h>
 using namespace Rcpp;
 
-// [[Rcpp::export]]
-SEXP new_graph_() {
-    Rcpp::XPtr<Graph> ptr( new Graph(), true );
-    return ptr;
-}
+struct Graph {
+    Graph() {}
+};
 
-// [[Rcpp::export]]
-SEXP add_node(SEXP graph, CharacterVector name) {
 
+RCPP_MODULE(Graph) {
+    class_<Graph>("Graph")
+    .constructor()
+    ;
 }

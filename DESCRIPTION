@@ -15,12 +15,11 @@ Depends:
     tailr,
     minilexer,
     pmatch,
-    matchbox (>= 0.0.0.9004)
+    matchbox (>= 0.0.0.9004),
+    Rcpp
 Suggests:
     reader
 LinkingTo: 
-    Rcpp
-Imports: 
     Rcpp
 Remotes:
     github::mailund/matchbox,
