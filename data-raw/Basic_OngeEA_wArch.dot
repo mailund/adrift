@@ -1,0 +1,43 @@
+digraph G { 
+size = "7.5,10" ;
+labelloc = "t" ; 
+label = "Basic_OngeEA_wArch.graph ::      Alt        Den        Din        Ong      -0.003599    -0.005614    -0.002015     0.000769    -2.622 
+" ; 
+
+pan_troglodytes  [ label = "pan_troglodytes" ] ; 
+       Dinka  [ label = "Dinka" ] ; 
+    AltaiNea  [ label = "AltaiNea" ] ; 
+DenisovaPinky  [ label = "DenisovaPinky" ] ; 
+  Kostenki14  [ label = "Kostenki14" ] ; 
+         Ami  [ label = "Ami" ] ; 
+        Onge  [ label = "Onge" ] ; 
+      Papuan  [ label = "Papuan" ] ; 
+pan_troglodytes -> SuperArch [  label = "227" ] ; 
+SuperArch -> Hominid [  label = "109" ] ; 
+Hominid -> Arch [  label = "175" ] ; 
+Hominid -> AfrAnc [  label = "273" ] ; 
+Arch -> NeaAnc [  label = "48" ] ; 
+AfrAnc -> Dinka [  label = "5" ] ; 
+NeaAnc -> AltaiNea [  label = "44" ] ; 
+DenisovaAncAnc -> DenisovaAnc [  label = "180" ] ; 
+DenisovaAnc -> DenisovaPinky [  label = "44" ] ; 
+AdmixedNonAfr -> NonAfricans [  label = "104" ] ; 
+NonAfricans -> K [  label = "218" ] ; 
+NonAfricans -> EastEurasian [  label = "24" ] ; 
+K2 -> Kostenki14 [  label = "223" ] ; 
+EastEurasian -> P [  label = "54" ] ; 
+EastEurasian -> X [  label = "2" ] ; 
+X -> OngeAnc [  label = "44" ] ; 
+X -> Ami [  label = "60" ] ; 
+OngeAnc -> Onge [  label = "44" ] ; 
+OngeAnc -> Jarawa [  label = "0" ] ; 
+P2 -> Papuan [  label = "57" ] ; 
+SuperArch -> DenisovaAncAnc [ style=dotted,  label = "51%" ] ; 
+Arch -> DenisovaAncAnc [ style=dotted,  label = "49%" ] ; 
+AfrAnc -> AdmixedNonAfr [ style=dotted,  label = "97%" ] ; 
+NeaAnc -> AdmixedNonAfr [ style=dotted,  label = "3%" ] ; 
+K -> K2 [ style=dotted,  label = "99%" ] ; 
+NeaAnc -> K2 [ style=dotted,  label = "1%" ] ; 
+P -> P2 [ style=dotted,  label = "97%" ] ; 
+DenisovaAnc -> P2 [ style=dotted,  label = "3%" ] ; 
+} 
