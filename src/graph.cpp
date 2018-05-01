@@ -142,6 +142,7 @@ void Graph::compute_forces(std::vector<double> &x, double drag)
 
             // v - vector from b to a
             double vx = a.get_x() - b.get_x();
+            if (vx == 0.0) vx = 1e-5; // avoid having them on top of each other
             double dist_sq = vx*vx;
             // force acting on a
             double fa_x = drag / dist_sq * (vx / ::sqrt(dist_sq));
@@ -149,8 +150,8 @@ void Graph::compute_forces(std::vector<double> &x, double drag)
             double fb_x = - fa_x;
 
             // update forces
-            x[i] += fa_x;
-            x[j] += fb_x;
+            x[i] += fa_x / 10.0;
+            x[j] += fb_x / 10.0;
         }
     }
 
@@ -162,11 +163,15 @@ void Graph::compute_forces(std::vector<double> &x, double drag)
             int j = nodes_map[b.name];
 
             double vx = a.get_x() - b.get_x();
+            if (vx == 0.0) vx = 1e-5; // avoid having them on top of each other
+
             // force acting on b
-            double fb_x = - drag * vx;
+            double fa_x = - drag * vx;
+            double fb_x = - fa_x;
 
             // update forces
-            x[j] += fb_x  / 10.0; // 10.0 to make it a weaker force
+            x[i] += fa_x  / 5.0;
+            x[j] += fb_x  / 5.0;
         }
     }
 
@@ -183,12 +188,6 @@ void Graph::compute_forces(std::vector<double> &x, double drag)
         double force = - drag * (a.get_x() - mean_x);
         x[i] += force ; // / 10.0; // 10.0 to make it a weaker force
     }
-
-    for (int i = 0; i < n; ++i) {
-        Node &a = nodes[i];
-        std::cout << "node " << a.name << " will be adjusted by delta x = " << x[i] << std::endl;
-    }
-
 }
 
 void Graph::force_step(double drag)
@@ -199,6 +198,17 @@ void Graph::force_step(double drag)
     for (int i = 0; i < n; ++i) {
         Node &node = nodes[i];
         node.x += force_x[i] / 10.0; // 10.0 to control rate of change
+    }
+}
+
+void Graph::graph_layout()
+{
+    randomize_node_positions();
+    for (int i = 1; i <= 1000; ++i) {
+        double drag = 1.0 / i;
+        for (int j = 1; j <= 100; ++j) {
+            force_step(drag);
+        }
     }
 }
 
@@ -253,6 +263,8 @@ RCPP_MODULE(Graph) {
         // remove these from public interface once layout algorithm is done
         .method("randomize_node_positions", &Graph::randomize_node_positions)
         .method("force_step", &Graph::force_step)
+
+        .method("layout", &Graph::graph_layout)
 
         .property("node_positions", &Graph::get_node_positions)
 

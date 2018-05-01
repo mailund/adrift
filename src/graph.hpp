@@ -45,6 +45,7 @@ public: // public now, but once layout is done, make it private
     void randomize_node_positions();
     void compute_forces(std::vector<double> &x, double drag);
     void force_step(double drag);
+    void graph_layout();
 
 public:
     Graph() {}
