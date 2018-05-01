@@ -137,17 +137,20 @@ void Graph::compute_forces(std::vector<double> &x, double drag)
             Node &a = nodes[i];
             Node &b = nodes[j];
 
+            // fixme: better to compute levels first than go over all pairs
+            if (a.get_y() != b.get_y()) continue;
+
             // v - vector from b to a
             double vx = a.get_x() - b.get_x();
             double dist_sq = vx*vx;
             // force acting on a
-            double fa_x = drag / dist_sq * vx;
+            double fa_x = drag / dist_sq * (vx / ::sqrt(dist_sq));
             // force acting on b
             double fb_x = - fa_x;
 
             // update forces
-            //x[i] += fa_x / 20.0;
-            //x[j] += fb_x / 20.0;
+            x[i] += fa_x;
+            x[j] += fb_x;
         }
     }
 
@@ -160,10 +163,10 @@ void Graph::compute_forces(std::vector<double> &x, double drag)
 
             double vx = a.get_x() - b.get_x();
             // force acting on b
-            double fb_x = - drag * vx / 10.0;
+            double fb_x = - drag * vx;
 
             // update forces
-            x[j] += fb_x;
+            x[j] += fb_x  / 10.0; // 10.0 to make it a weaker force
         }
     }
 
@@ -177,8 +180,8 @@ void Graph::compute_forces(std::vector<double> &x, double drag)
             sum_x += bp->get_x();
         }
         double mean_x = sum_x / a.children.size();
-        double force = - drag * (a.get_x() - mean_x) / 10.0;
-        x[i] += force;
+        double force = - drag * (a.get_x() - mean_x);
+        x[i] += force ; // / 10.0; // 10.0 to make it a weaker force
     }
 
     for (int i = 0; i < n; ++i) {
@@ -195,7 +198,7 @@ void Graph::force_step(double drag)
     compute_forces(force_x, drag);
     for (int i = 0; i < n; ++i) {
         Node &node = nodes[i];
-        node.x += force_x[i];
+        node.x += force_x[i] / 10.0; // 10.0 to control rate of change
     }
 }
 
@@ -211,6 +214,26 @@ DataFrame Graph::get_node_positions()
     return DataFrame::create(Named("label") = label,
                              Named("x") = x, Named("y") = y);
 }
+
+DataFrame Graph::get_ggraph_nodes()
+{
+    return DataFrame::create(Named("label") = get_node_names());
+}
+
+DataFrame Graph::get_ggraph_edges()
+{
+    CharacterVector from, to;
+    for (auto &n : nodes) {
+        for (auto child : n.children) {
+            from.push_back(n.name);
+            to.push_back(child->name);
+        }
+    }
+    return DataFrame::create(Named("from") = from,
+                             Named("to") = to,
+                             Named("stringsAsFactors") = false);
+}
+
 
 RCPP_MODULE(Graph) {
     class_<Graph>("Graph")
@@ -232,5 +255,8 @@ RCPP_MODULE(Graph) {
         .method("force_step", &Graph::force_step)
 
         .property("node_positions", &Graph::get_node_positions)
+
+        .property("ggraph_nodes", &Graph::get_ggraph_nodes)
+        .property("ggraph_edges", &Graph::get_ggraph_edges)
     ;
 }

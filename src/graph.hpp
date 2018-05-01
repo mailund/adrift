@@ -59,6 +59,9 @@ public:
 
     Rcpp::DataFrame get_node_positions();
 
+    Rcpp::DataFrame get_ggraph_nodes();
+    Rcpp::DataFrame get_ggraph_edges();
+
     bool is_connected();
 };
 
