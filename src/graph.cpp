@@ -4,6 +4,17 @@
 using namespace Rcpp;
 // [[Rcpp::plugins(cpp11)]]
 
+void Node::compute_dist_to_leaf()
+{
+    if (dist_to_leaf >= 0) return;
+
+    dist_to_leaf = 0;
+    for (auto child : children) {
+        child->compute_dist_to_leaf();
+        dist_to_leaf = std::max(dist_to_leaf, child->dist_to_leaf + 1);
+    }
+}
+
 void Graph::add_node(std::string &name)
 {
     if (nodes_map.find(name) != nodes_map.end()) {
@@ -19,7 +30,7 @@ CharacterVector Graph::get_node_names()
 {
     CharacterVector names;
     for (auto cell : nodes) {
-        names.push_back(cell.name);
+        names.push_back(cell.get_name());
     }
     return names;
 }
@@ -107,14 +118,95 @@ bool Graph::is_connected()
     return seen.size() == nodes.size();
 }
 
+void Graph::randomize_node_positions()
+{
+    for (auto &n : nodes) {
+        // somewhat arbitrary sampling...
+        n.set_x(rnorm(1, 0, 1)[0]);
+        n.compute_dist_to_leaf(); // y coordinate determined by level
+    }
+}
+
+void Graph::compute_forces(std::vector<double> &x, double drag)
+{
+    int n = get_no_nodes();
+
+    // for the repulsive forces I compute all i,j : j < i pairs
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < i; ++j) {
+            Node &a = nodes[i];
+            Node &b = nodes[j];
+
+            // v - vector from b to a
+            double vx = a.get_x() - b.get_x();
+            double dist_sq = vx*vx;
+            // force acting on a
+            double fa_x = drag / dist_sq * vx;
+            // force acting on b
+            double fb_x = - fa_x;
+
+            // update forces
+            //x[i] += fa_x / 20.0;
+            //x[j] += fb_x / 20.0;
+        }
+    }
+
+    // for the spring forces, I compute all parent-child edges but only move children (parent moved by gravety)
+    for (int i = 0; i < n; ++i) {
+        Node &a = nodes[i];
+        for (auto bp : a.children) {
+            Node &b = *bp;
+            int j = nodes_map[b.name];
+
+            double vx = a.get_x() - b.get_x();
+            // force acting on b
+            double fb_x = - drag * vx / 10.0;
+
+            // update forces
+            x[j] += fb_x;
+        }
+    }
+
+    // for the gravety force I move parents to the center of children's gravety
+    for (int i = 0; i < n; ++i) {
+        Node &a = nodes[i];
+        if (a.children.empty()) continue;
+
+        double sum_x = 0.0;
+        for (auto bp : a.children) {
+            sum_x += bp->get_x();
+        }
+        double mean_x = sum_x / a.children.size();
+        double force = - drag * (a.get_x() - mean_x) / 10.0;
+        x[i] += force;
+    }
+
+    for (int i = 0; i < n; ++i) {
+        Node &a = nodes[i];
+        std::cout << "node " << a.name << " will be adjusted by delta x = " << x[i] << std::endl;
+    }
+
+}
+
+void Graph::force_step(double drag)
+{
+    int n = get_no_nodes();
+    std::vector<double> force_x(n, 0.0);
+    compute_forces(force_x, drag);
+    for (int i = 0; i < n; ++i) {
+        Node &node = nodes[i];
+        node.x += force_x[i];
+    }
+}
+
 DataFrame Graph::get_node_positions()
 {
     CharacterVector label;
     NumericVector x, y;
     for (auto n : nodes) {
         label.push_back(n.name);
-        x.push_back(n.x);
-        y.push_back(n.y);
+        x.push_back(n.get_x());
+        y.push_back(n.get_y());
     }
     return DataFrame::create(Named("label") = label,
                              Named("x") = x, Named("y") = y);
@@ -134,6 +226,10 @@ RCPP_MODULE(Graph) {
         .method("get_children", &Graph::get_children)
 
         .property("connected", &Graph::is_connected)
+
+        // remove these from public interface once layout algorithm is done
+        .method("randomize_node_positions", &Graph::randomize_node_positions)
+        .method("force_step", &Graph::force_step)
 
         .property("node_positions", &Graph::get_node_positions)
     ;

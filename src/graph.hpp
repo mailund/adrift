@@ -7,26 +7,44 @@
 #include <Rcpp.h>
 
 
-struct Node {
+class Node {
+    friend class Graph;
+
     std::string name;
 
     std::vector<Node*> parents;
     std::vector<Node*> children;
 
+    // Used for plotting...
+    double x;
+    int dist_to_leaf;
+
+public:
+    Node(std::string &name) : name(name), dist_to_leaf(-1) {}
+    Node() : name(""), dist_to_leaf(-1) {}
+
+    const std::string &get_name() const { return name; }
+
+    double get_x() const { return x; }
+    double get_y() const { return (double)dist_to_leaf; }
+    void set_x(double new_x) { x = new_x; }
+
     bool is_leaf() const { return children.empty(); }
     bool is_root() const { return parents.empty(); }
 
-    // Used for plotting...
-    double x, y;
+    void compute_dist_to_leaf();
 
-    Node(std::string &name) : name(name) {}
-    Node() : name("") {}
 };
 
 class Graph {
     std::vector<Node> nodes;
     std::map<std::string, unsigned int> nodes_map;
     void connect_nodes_(Node &parent, Node &child);
+
+public: // public now, but once layout is done, make it private
+    void randomize_node_positions();
+    void compute_forces(std::vector<double> &x, double drag);
+    void force_step(double drag);
 
 public:
     Graph() {}
