@@ -11,3 +11,4 @@ g$get_parents("z")
 
 g$connected
 
+g$node_positions

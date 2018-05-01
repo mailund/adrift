@@ -6,18 +6,20 @@ using namespace Rcpp;
 
 void Graph::add_node(std::string &name)
 {
-    if (nodes.find(name) != nodes.end()) {
-        // FIXME
+    if (nodes_map.find(name) != nodes_map.end()) {
+        // FIXME: make warning
         std::cerr << "Node already in graph!\n";
+        return;
     }
-    nodes[name] = Node(name);
+    nodes.push_back(Node(name));
+    nodes_map[name] = nodes.size() - 1;
 }
 
 CharacterVector Graph::get_node_names()
 {
     CharacterVector names;
     for (auto cell : nodes) {
-        names.push_back(cell.second.name);
+        names.push_back(cell.name);
     }
     return names;
 }
@@ -32,23 +34,27 @@ void Graph::connect_nodes_(Node &parent, Node &child)
 void Graph::connect_nodes(std::string &parent, std::string &child)
 {
     // FIXME: better error handling
-    if (nodes.find(parent) == nodes.end()) {
+    if (nodes_map.find(parent) == nodes_map.end()) {
         std::cerr << "The parent node " << parent << "is not found in the graph!\n";
         return;
     }
-    if (nodes.find(child) == nodes.end()) {
+    if (nodes_map.find(child) == nodes_map.end()) {
         std::cerr << "The child node " << child << "is not found in the graph!\n";
         return;
     }
 
-    Node &parent_node = nodes[parent];
-    Node &child_node = nodes[child];
+    Node &parent_node = nodes[nodes_map[parent]];
+    Node &child_node = nodes[nodes_map[child]];
     connect_nodes_(parent_node, child_node);
 }
 
-Rcpp::CharacterVector Graph::get_parents(std::string &node_name)
+CharacterVector Graph::get_parents(std::string &node_name)
 {
-    Node &node = nodes[node_name]; // FIXME: error handling
+    if (nodes_map.find(node_name) == nodes_map.end()) {
+        std::cerr << "Node is not found in graph!\n";
+        return R_NilValue;
+    }
+    Node &node = nodes[nodes_map[node_name]];
     CharacterVector parent_names;
     for (auto n : node.parents) {
         parent_names.push_back(n->name);
@@ -56,9 +62,13 @@ Rcpp::CharacterVector Graph::get_parents(std::string &node_name)
     return parent_names;
 }
 
-Rcpp::CharacterVector Graph::get_children(std::string &node_name)
+CharacterVector Graph::get_children(std::string &node_name)
 {
-    Node &node = nodes[node_name]; // FIXME: error handling
+    if (nodes_map.find(node_name) == nodes_map.end()) {
+        std::cerr << "Node is not found in graph!\n";
+        return R_NilValue;
+    }
+    Node &node = nodes[nodes_map[node_name]];
     CharacterVector children_names;
     for (auto n : node.children) {
         children_names.push_back(n->name);
@@ -68,9 +78,14 @@ Rcpp::CharacterVector Graph::get_children(std::string &node_name)
 
 bool Graph::is_connected()
 {
+    if (nodes.empty()) {
+        std::cerr << "Graph is empty!\n"; // FIXME: make this a warning
+        return true;
+    }
+
     std::set<Node*> seen;
     std::stack<Node*> to_process;
-    Node *node = &(nodes.begin()->second);
+    Node *node = &nodes[0];
     to_process.push(node); seen.insert(node);
 
     while (!to_process.empty()) {
@@ -92,13 +107,26 @@ bool Graph::is_connected()
     return seen.size() == nodes.size();
 }
 
+DataFrame Graph::get_node_positions()
+{
+    CharacterVector label;
+    NumericVector x, y;
+    for (auto n : nodes) {
+        label.push_back(n.name);
+        x.push_back(n.x);
+        y.push_back(n.y);
+    }
+    return DataFrame::create(Named("label") = label,
+                             Named("x") = x, Named("y") = y);
+}
+
 RCPP_MODULE(Graph) {
     class_<Graph>("Graph")
         .constructor()
 
         .method("add_node", &Graph::add_node)
-        .property("no_nodes", &Graph::get_no_nodes, 0)
-        .property("nodes", &Graph::get_node_names, 0)
+        .property("no_nodes", &Graph::get_no_nodes)
+        .property("nodes", &Graph::get_node_names)
 
         .method("connect_nodes", &Graph::connect_nodes)
 
@@ -106,5 +134,7 @@ RCPP_MODULE(Graph) {
         .method("get_children", &Graph::get_children)
 
         .property("connected", &Graph::is_connected)
+
+        .property("node_positions", &Graph::get_node_positions)
     ;
 }

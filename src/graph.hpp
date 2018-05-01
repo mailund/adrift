@@ -24,7 +24,8 @@ struct Node {
 };
 
 class Graph {
-    std::map<std::string, Node> nodes;
+    std::vector<Node> nodes;
+    std::map<std::string, unsigned int> nodes_map;
     void connect_nodes_(Node &parent, Node &child);
 
 public:
@@ -37,6 +38,8 @@ public:
     void connect_nodes(std::string &parent, std::string &child);
     Rcpp::CharacterVector get_parents(std::string &node);
     Rcpp::CharacterVector get_children(std::string &node);
+
+    Rcpp::DataFrame get_node_positions();
 
     bool is_connected();
 };
