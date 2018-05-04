@@ -81,7 +81,6 @@ void Graph::connect_nodes_(Node &parent, Node &child)
 
 void Graph::connect_nodes(std::string &parent, std::string &child)
 {
-    // FIXME: better error handling
     if (nodes_map.find(parent) == nodes_map.end()) {
         stop("The parent node is not found in the graph.");
         return;
@@ -119,7 +118,7 @@ CharacterVector Graph::get_children(std::string &node_name)
     Node &node = nodes[nodes_map[node_name]];
     CharacterVector children_names(node.children.size());
     for (int i = 0; i < node.children.size(); ++i) {
-        children_names.push_back(children[i]->name);
+        children_names.push_back(node.children[i]->name);
     }
     return children_names;
 }
@@ -259,7 +258,7 @@ void Graph::graph_layout()
 
 DataFrame Graph::get_node_positions()
 {
-    // FIXME: preallocate vectors instead of push_back
+    // FIXME: preallocate vectors instead of push_back https://github.com/mailund/adrift/issues/5 id:4
     CharacterVector label;
     NumericVector x, y;
     for (auto n : nodes) {
@@ -280,7 +279,7 @@ DataFrame Graph::get_ggraph_nodes()
 
 DataFrame Graph::get_ggraph_edges()
 {
-    // FIXME: preallocate vectors instead of push_back
+    // FIXME: preallocate vectors instead of push_back https://github.com/mailund/adrift/issues/6 id:5
     CharacterVector from, to;
     for (auto &n : nodes) {
         for (auto child : n.children) {
