@@ -44,7 +44,7 @@ graph %>%
     ggraph(ag_layout) +
     geom_edge_link(edge_width = 0.8, edge_colour = "darkblue") +
     geom_node_text(aes(filter = is_leaf, label = label),
-                   size = 4, nudge_y = -0.4, angle = -20) +
+                   size = 4, nudge_y = -0.4, angle = -10) +
     geom_node_label(aes(filter = !is_leaf, label = label),
                     size = 3, nudge_y = -0.1, repel = TRUE) +
     coord_cartesian(clip = "off") +

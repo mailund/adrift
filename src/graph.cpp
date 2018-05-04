@@ -48,8 +48,7 @@ double Node::assign_x_coordinate(int &node_no)
 void Graph::add_node(std::string &name)
 {
     if (nodes_map.find(name) != nodes_map.end()) {
-        // FIXME: make warning
-        std::cerr << "Node already in graph!\n";
+        warning("Node already in graph!");
         return;
     }
     nodes.push_back(Node(name));
@@ -58,10 +57,9 @@ void Graph::add_node(std::string &name)
 
 CharacterVector Graph::get_node_names()
 {
-    // FIXME: preallocate vectors instead of push_back
-    CharacterVector names;
-    for (auto cell : nodes) {
-        names.push_back(cell.get_name());
+    CharacterVector names(nodes.size());
+    for (int i = 0; i < nodes.size(); ++i) {
+        names.push_back(nodes[i].get_name());
     }
     return names;
 }
@@ -85,13 +83,11 @@ void Graph::connect_nodes(std::string &parent, std::string &child)
 {
     // FIXME: better error handling
     if (nodes_map.find(parent) == nodes_map.end()) {
-        std::cerr << "The parent node " << parent
-                  << " is not found in the graph!\n";
+        stop("The parent node is not found in the graph.");
         return;
     }
     if (nodes_map.find(child) == nodes_map.end()) {
-        std::cerr << "The child node " << child
-                  << " is not found in the graph!\n";
+        stop("The child node is not found in the graph.");
         return;
     }
 
@@ -103,14 +99,13 @@ void Graph::connect_nodes(std::string &parent, std::string &child)
 CharacterVector Graph::get_parents(std::string &node_name)
 {
     if (nodes_map.find(node_name) == nodes_map.end()) {
-        std::cerr << "Node is not found in graph!\n";
+        warning("Node is not found in graph.");
         return R_NilValue;
     }
     Node &node = nodes[nodes_map[node_name]];
-    // FIXME: preallocate vectors instead of push_back
-    CharacterVector parent_names;
-    for (auto n : node.parents) {
-        parent_names.push_back(n->name);
+    CharacterVector parent_names(node.parents.size());
+    for (int i = 0; i < node.parents.size(); ++i) {
+        parent_names.push_back(node.parents[i]->name);
     }
     return parent_names;
 }
@@ -118,14 +113,13 @@ CharacterVector Graph::get_parents(std::string &node_name)
 CharacterVector Graph::get_children(std::string &node_name)
 {
     if (nodes_map.find(node_name) == nodes_map.end()) {
-        std::cerr << "Node is not found in graph!\n";
+        warning("Node is not found in graph!");
         return R_NilValue;
     }
     Node &node = nodes[nodes_map[node_name]];
-    // FIXME: preallocate vectors instead of push_back
-    CharacterVector children_names;
-    for (auto n : node.children) {
-        children_names.push_back(n->name);
+    CharacterVector children_names(node.children.size());
+    for (int i = 0; i < node.children.size(); ++i) {
+        children_names.push_back(children[i]->name);
     }
     return children_names;
 }
@@ -133,7 +127,7 @@ CharacterVector Graph::get_children(std::string &node_name)
 bool Graph::is_connected()
 {
     if (nodes.empty()) {
-        std::cerr << "Graph is empty!\n"; // FIXME: make this a warning
+        warning("Graph is empty!");
         return true;
     }
 
@@ -168,15 +162,6 @@ void Graph::assign_initial_coordinates()
         n.assign_x_coordinate(node_no); // assign x-coord. tree-like
         n.compute_dist_to_leaf(); // y coordinate determined by level
     }
-
-    return;
-
-    RNGScope rng;
-    for (auto &n : nodes) {
-        // somewhat arbitrary sampling...
-        n.set_x(rnorm(1, 0, 1)[0]);
-        n.compute_dist_to_leaf(); // y coordinate determined by level
-    }
 }
 
 void Graph::compute_forces(std::vector<double> &x, double drag)
@@ -189,7 +174,7 @@ void Graph::compute_forces(std::vector<double> &x, double drag)
             Node &a = nodes[i];
             Node &b = nodes[j];
 
-            // fixme: better to compute levels first than go over all pairs
+            // FIXME: better to compute levels first than go over all pairs
             if (a.get_y() != b.get_y()) continue;
 
             // v - vector from b to a
