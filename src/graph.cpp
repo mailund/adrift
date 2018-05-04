@@ -48,7 +48,7 @@ double Node::assign_x_coordinate(int &node_no)
 void Graph::add_node(std::string &name)
 {
     if (nodes_map.find(name) != nodes_map.end()) {
-        // FIXME: make warning
+        // FIXME: make warning https://github.com/mailund/adrift/issues/1 id:0
         std::cerr << "Node already in graph!\n";
         return;
     }
@@ -58,7 +58,7 @@ void Graph::add_node(std::string &name)
 
 CharacterVector Graph::get_node_names()
 {
-    // FIXME: preallocate vectors instead of push_back
+    // FIXME: preallocate vectors instead of push_back https://github.com/mailund/adrift/issues/2 id:1
     CharacterVector names;
     for (auto cell : nodes) {
         names.push_back(cell.get_name());
@@ -83,7 +83,7 @@ void Graph::connect_nodes_(Node &parent, Node &child)
 
 void Graph::connect_nodes(std::string &parent, std::string &child)
 {
-    // FIXME: better error handling
+    // FIXME: better error handling https://github.com/mailund/adrift/issues/3 id:2
     if (nodes_map.find(parent) == nodes_map.end()) {
         std::cerr << "The parent node " << parent
                   << " is not found in the graph!\n";
@@ -107,7 +107,7 @@ CharacterVector Graph::get_parents(std::string &node_name)
         return R_NilValue;
     }
     Node &node = nodes[nodes_map[node_name]];
-    // FIXME: preallocate vectors instead of push_back
+    // FIXME: preallocate vectors instead of push_back https://github.com/mailund/adrift/issues/4 id:3
     CharacterVector parent_names;
     for (auto n : node.parents) {
         parent_names.push_back(n->name);
@@ -122,7 +122,7 @@ CharacterVector Graph::get_children(std::string &node_name)
         return R_NilValue;
     }
     Node &node = nodes[nodes_map[node_name]];
-    // FIXME: preallocate vectors instead of push_back
+    // FIXME: preallocate vectors instead of push_back https://github.com/mailund/adrift/issues/8 id:7
     CharacterVector children_names;
     for (auto n : node.children) {
         children_names.push_back(n->name);
@@ -133,7 +133,7 @@ CharacterVector Graph::get_children(std::string &node_name)
 bool Graph::is_connected()
 {
     if (nodes.empty()) {
-        std::cerr << "Graph is empty!\n"; // FIXME: make this a warning
+        std::cerr << "Graph is empty!\n"; // FIXME: make this a warning https://github.com/mailund/adrift/issues/7 id:6
         return true;
     }
 
@@ -274,7 +274,7 @@ void Graph::graph_layout()
 
 DataFrame Graph::get_node_positions()
 {
-    // FIXME: preallocate vectors instead of push_back
+    // FIXME: preallocate vectors instead of push_back https://github.com/mailund/adrift/issues/5 id:4
     CharacterVector label;
     NumericVector x, y;
     for (auto n : nodes) {
@@ -295,7 +295,7 @@ DataFrame Graph::get_ggraph_nodes()
 
 DataFrame Graph::get_ggraph_edges()
 {
-    // FIXME: preallocate vectors instead of push_back
+    // FIXME: preallocate vectors instead of push_back https://github.com/mailund/adrift/issues/6 id:5
     CharacterVector from, to;
     for (auto &n : nodes) {
         for (auto child : n.children) {
