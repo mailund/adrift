@@ -22,11 +22,26 @@ double Node::assign_x_coordinate(int &node_no)
     if (is_leaf()) {
         return x = (double)node_no++;
     } else {
-        double sum_x = 0.0;
-        for (auto child : children) {
-            sum_x += child->assign_x_coordinate(node_no);
+        if (children.size() == 1) {
+            return x = children[0]->assign_x_coordinate(node_no);
+
+        } else if (children.size() == 2){
+            RNGScope rng;
+            double sum_x = 0.0;
+            bool order = runif(1, 0, 1)[0] < 0.5;
+            sum_x += children[order]->assign_x_coordinate(node_no);
+            sum_x += children[!order]->assign_x_coordinate(node_no);
+            return x = sum_x / 2.0;
+
+        } else {
+            // There shouldn't be high degree nodes like this, but
+            // just in case, we do this
+            double sum_x = 0.0;
+            for (auto child : children) {
+                sum_x += child->assign_x_coordinate(node_no);
+            }
+            return x = sum_x / children.size();
         }
-        return x = sum_x / children.size();
     }
 }
 
@@ -51,9 +66,17 @@ CharacterVector Graph::get_node_names()
     return names;
 }
 
+LogicalVector Graph::is_leaf()
+{
+    LogicalVector is_leaf_v(nodes.size());
+    for (int i = 0; i < nodes.size(); ++i) {
+        is_leaf_v[i] = nodes[i].is_leaf();
+    }
+    return is_leaf_v;
+}
+
 void Graph::connect_nodes_(Node &parent, Node &child)
 {
-    // FIXME: data validation
     parent.children.push_back(&child);
     child.parents.push_back(&parent);
 }
@@ -265,7 +288,9 @@ DataFrame Graph::get_node_positions()
 
 DataFrame Graph::get_ggraph_nodes()
 {
-    return DataFrame::create(Named("label") = get_node_names());
+    CharacterVector node_names(get_node_names());
+    return DataFrame::create(Named("label") = node_names,
+                             Named("is_leaf") = is_leaf());
 }
 
 DataFrame Graph::get_ggraph_edges()
@@ -291,6 +316,7 @@ RCPP_MODULE(Graph) {
         .method("add_node", &Graph::add_node)
         .property("no_nodes", &Graph::get_no_nodes)
         .property("nodes", &Graph::get_node_names)
+        .property("is_leaf", &Graph::is_leaf)
 
         .method("connect_nodes", &Graph::connect_nodes)
 

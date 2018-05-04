@@ -53,6 +53,8 @@ public:
     int get_no_nodes() const { return nodes.size(); }
     Rcpp::CharacterVector get_node_names();
 
+    Rcpp::LogicalVector is_leaf();
+
     void connect_nodes(std::string &parent, std::string &child);
     Rcpp::CharacterVector get_parents(std::string &node);
     Rcpp::CharacterVector get_children(std::string &node);

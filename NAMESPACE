@@ -2,9 +2,6 @@
 
 export(Graph)
 export(read_dot)
-import(admixturegraph)
-import(dplyr)
 import(matchbox)
-import(tibble)
 importFrom(Rcpp,sourceCpp)
 useDynLib(adrift, .registration = TRUE)

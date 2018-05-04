@@ -43,8 +43,10 @@ dot_parse_graph <- function(text) {
     }
 
     parse_attribute_list <- function() {
-        lexer$consume_token("square_start")
         tbl <- list()
+        if (lexer$get_token_type() != "square_start") return(tbl)
+
+        lexer$consume_token("square_start")
         while (lexer$get_token_type() != "square_end") {
             key <- lexer$consume_token(type = "name")
             lexer$consume_token(type = "eq")
@@ -76,7 +78,9 @@ dot_parse_graph <- function(text) {
             to <- lexer$consume_token(type = "name")
             attribs <- parse_attribute_list()
             lexer$consume_token(type = "stmt_end")
-            edge <- c(from = from, to = to, label = attribs[["label"]])
+            label <- ifelse(!is.null(attribs[["label"]]),
+                            attribs[["label"]], NA)
+            edge <- c(from = from, to = to, label = label)
             edges <<- CONS(edge, edges)
             return(TRUE)
         },
@@ -132,11 +136,8 @@ dot_get_edges <- function(edges) {
 #' @export
 read_dot <- function(text) {
     edges <- dot_parse_graph(text)
-    return(edges)
-
     edges_tbl <- dot_get_edges(edges)
     edges_df <- as_tibble(edges_tbl)
-    return(edges_df)
 
     count_in <- edges_df %>%
         group_by(to) %>%
@@ -175,21 +176,27 @@ read_dot <- function(text) {
     admixture_vars <- NIL
     admixture_props <- NIL
     for (node in admixture_nodes) {
-        edge <- edges_df %>% filter(to == node) %>% head(1)
-        edge_name <- paste0(edge$from, "_", edge$to)
-        edge_prop <- as.numeric(sub("%","",gsub('"','',edge$label))) / 100
-        edges_tbl[edges_tbl[,"parent"] == edge$from & edges_tbl[,"child"] == edge$to,3] <- edge_name
-        admixture_vars <- CONS(edge_name, admixture_vars)
-        admixture_props <- CONS(edge_prop, admixture_props)
+        edges <- edges_df %>% filter(to == node) %>% head()
+        stopifnot(nrow(edges) == 2)
+        e1 <- edges[1,]
+        e2 <- edges[2,]
+        admix_param <- paste0(e1$from, "_", e1$to)
+        e1_label <- admix_param
+        e2_label <- paste0("(1 - ", admix_param, ")")
+        admix_prop <- as.numeric(sub("%","",gsub('"','',e1$label))) / 100
+
+        edges_tbl[edges_tbl[,"parent"] == e1$from & edges_tbl[,"child"] == e1$to,3] <- e1_label
+        edges_tbl[edges_tbl[,"parent"] == e2$from & edges_tbl[,"child"] == e2$to,3] <- e2_label
+
+        admixture_vars <- CONS(admix_param, admixture_vars)
+        admixture_props <- CONS(admix_prop, admixture_props)
     }
+
     admixture_vars <- admixture_vars %>% as.vector()
     admixture_props <- admixture_props %>% as.vector()
     if (length(admixture_props) > 0)
         names(admixture_props) <- admixture_vars
 
-    g <- agraph(leaves, inner_nodes, edges_tbl)
-    attr(g, "admixture_proportions") <- admixture_props
-    g
+    attr(edges_tbl, "admixture_proportions") <- admixture_props
+    edges_tbl
 }
-
-
