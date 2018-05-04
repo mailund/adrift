@@ -1,8 +1,9 @@
 #include "graph.hpp"
 #include <stack>
 
+// [[Rcpp::plugins("cpp11")]]
 using namespace Rcpp;
-// [[Rcpp::plugins(cpp11)]]
+
 
 void Node::compute_dist_to_leaf()
 {
@@ -258,10 +259,10 @@ void Graph::graph_layout()
 
 DataFrame Graph::get_node_positions()
 {
-    // FIXME: preallocate vectors instead of push_back https://github.com/mailund/adrift/issues/5 id:4
-    CharacterVector label;
-    NumericVector x, y;
-    for (auto n : nodes) {
+    CharacterVector label(nodes.size());
+    NumericVector x(nodes.size()), y(nodes.size());
+    for (int i = 0; i < nodes.size(); ++i) {
+        Node &n = nodes[i];
         label.push_back(n.name);
         x.push_back(n.get_x());
         y.push_back(n.get_y());
