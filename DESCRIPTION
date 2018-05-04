@@ -16,6 +16,9 @@ Depends:
     minilexer,
     pmatch,
     matchbox (>= 0.0.0.9004),
+    ggplot2 (>= 2.2.1.9000),
+    ggraph,
+    tidygraph,
     Rcpp
 Suggests:
     reader
@@ -23,4 +26,5 @@ LinkingTo:
     Rcpp
 Remotes:
     github::mailund/matchbox,
+    github::tidyverse/ggplot2,
     bitbucket::coolbutuseless/minilexer
