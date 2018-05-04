@@ -20,8 +20,8 @@ class Node {
     int dist_to_leaf;
 
 public:
-    Node(std::string &name) : name(name), dist_to_leaf(-1) {}
-    Node() : name(""), dist_to_leaf(-1) {}
+    Node(std::string &name) : name(name), x(-1.0), dist_to_leaf(-1) {}
+    Node() : name(""), x(-1.0), dist_to_leaf(-1) {}
 
     const std::string &get_name() const { return name; }
 
@@ -33,7 +33,7 @@ public:
     bool is_root() const { return parents.empty(); }
 
     void compute_dist_to_leaf();
-
+    double assign_x_coordinate(int &node_no);
 };
 
 class Graph {
@@ -41,11 +41,10 @@ class Graph {
     std::map<std::string, unsigned int> nodes_map;
     void connect_nodes_(Node &parent, Node &child);
 
-public: // public now, but once layout is done, make it private
-    void randomize_node_positions();
+    void assign_initial_coordinates();
     void compute_forces(std::vector<double> &x, double drag);
     void force_step(double drag);
-    void graph_layout();
+
 
 public:
     Graph() {}
@@ -58,6 +57,7 @@ public:
     Rcpp::CharacterVector get_parents(std::string &node);
     Rcpp::CharacterVector get_children(std::string &node);
 
+    void graph_layout();
     Rcpp::DataFrame get_node_positions();
 
     Rcpp::DataFrame get_ggraph_nodes();

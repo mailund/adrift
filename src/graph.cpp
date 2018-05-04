@@ -15,6 +15,21 @@ void Node::compute_dist_to_leaf()
     }
 }
 
+double Node::assign_x_coordinate(int &node_no)
+{
+    if (x >= 0) return x;
+
+    if (is_leaf()) {
+        return x = (double)node_no++;
+    } else {
+        double sum_x = 0.0;
+        for (auto child : children) {
+            sum_x += child->assign_x_coordinate(node_no);
+        }
+        return x = sum_x / children.size();
+    }
+}
+
 void Graph::add_node(std::string &name)
 {
     if (nodes_map.find(name) != nodes_map.end()) {
@@ -28,6 +43,7 @@ void Graph::add_node(std::string &name)
 
 CharacterVector Graph::get_node_names()
 {
+    // FIXME: preallocate vectors instead of push_back
     CharacterVector names;
     for (auto cell : nodes) {
         names.push_back(cell.get_name());
@@ -46,11 +62,13 @@ void Graph::connect_nodes(std::string &parent, std::string &child)
 {
     // FIXME: better error handling
     if (nodes_map.find(parent) == nodes_map.end()) {
-        std::cerr << "The parent node " << parent << "is not found in the graph!\n";
+        std::cerr << "The parent node " << parent
+                  << " is not found in the graph!\n";
         return;
     }
     if (nodes_map.find(child) == nodes_map.end()) {
-        std::cerr << "The child node " << child << "is not found in the graph!\n";
+        std::cerr << "The child node " << child
+                  << " is not found in the graph!\n";
         return;
     }
 
@@ -66,6 +84,7 @@ CharacterVector Graph::get_parents(std::string &node_name)
         return R_NilValue;
     }
     Node &node = nodes[nodes_map[node_name]];
+    // FIXME: preallocate vectors instead of push_back
     CharacterVector parent_names;
     for (auto n : node.parents) {
         parent_names.push_back(n->name);
@@ -80,6 +99,7 @@ CharacterVector Graph::get_children(std::string &node_name)
         return R_NilValue;
     }
     Node &node = nodes[nodes_map[node_name]];
+    // FIXME: preallocate vectors instead of push_back
     CharacterVector children_names;
     for (auto n : node.children) {
         children_names.push_back(n->name);
@@ -118,8 +138,17 @@ bool Graph::is_connected()
     return seen.size() == nodes.size();
 }
 
-void Graph::randomize_node_positions()
+void Graph::assign_initial_coordinates()
 {
+    int node_no = 0;
+    for (auto &n : nodes) {
+        n.assign_x_coordinate(node_no); // assign x-coord. tree-like
+        n.compute_dist_to_leaf(); // y coordinate determined by level
+    }
+
+    return;
+
+    RNGScope rng;
     for (auto &n : nodes) {
         // somewhat arbitrary sampling...
         n.set_x(rnorm(1, 0, 1)[0]);
@@ -150,12 +179,13 @@ void Graph::compute_forces(std::vector<double> &x, double drag)
             double fb_x = - fa_x;
 
             // update forces
-            x[i] += fa_x / 10.0;
-            x[j] += fb_x / 10.0;
+            x[i] += fa_x / 5.0;
+            x[j] += fb_x / 5.0;
         }
     }
 
-    // for the spring forces, I compute all parent-child edges but only move children (parent moved by gravety)
+    // for the spring forces, I compute all parent-child edges but only move
+    // children (parent moved by gravety)
     for (int i = 0; i < n; ++i) {
         Node &a = nodes[i];
         for (auto bp : a.children) {
@@ -203,7 +233,14 @@ void Graph::force_step(double drag)
 
 void Graph::graph_layout()
 {
-    randomize_node_positions();
+    if (!is_connected()) {
+        std::cerr << "The graph needs to be connected before "
+                  << "the layout algorithm can be used." << std::endl;
+        return;
+    }
+
+    assign_initial_coordinates();
+    return;
     for (int i = 1; i <= 1000; ++i) {
         double drag = 1.0 / i;
         for (int j = 1; j <= 100; ++j) {
@@ -214,6 +251,7 @@ void Graph::graph_layout()
 
 DataFrame Graph::get_node_positions()
 {
+    // FIXME: preallocate vectors instead of push_back
     CharacterVector label;
     NumericVector x, y;
     for (auto n : nodes) {
@@ -232,6 +270,7 @@ DataFrame Graph::get_ggraph_nodes()
 
 DataFrame Graph::get_ggraph_edges()
 {
+    // FIXME: preallocate vectors instead of push_back
     CharacterVector from, to;
     for (auto &n : nodes) {
         for (auto child : n.children) {
@@ -259,13 +298,7 @@ RCPP_MODULE(Graph) {
         .method("get_children", &Graph::get_children)
 
         .property("connected", &Graph::is_connected)
-
-        // remove these from public interface once layout algorithm is done
-        .method("randomize_node_positions", &Graph::randomize_node_positions)
-        .method("force_step", &Graph::force_step)
-
         .method("layout", &Graph::graph_layout)
-
         .property("node_positions", &Graph::get_node_positions)
 
         .property("ggraph_nodes", &Graph::get_ggraph_nodes)

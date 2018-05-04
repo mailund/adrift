@@ -39,5 +39,4 @@ graph <- tbl_graph(nodes = g$ggraph_nodes,
 graph %>%
     ggraph(layout = ag_layout) +
     geom_node_text(aes(label = label)) +
-    geom_edge_link() +
-    theme_graph()
+    geom_edge_link() #+    theme_graph()
