@@ -91,9 +91,12 @@ void Graph::connect_nodes(std::string &parent, std::string &child)
         return;
     }
 
-    Node &parent_node = nodes[nodes_map[parent]];
-    Node &child_node = nodes[nodes_map[child]];
+    unsigned int parent_idx = nodes_map[parent];
+    unsigned int child_idx = nodes_map[child];
+    Node &parent_node = nodes[parent_idx];
+    Node &child_node = nodes[child_idx];
     connect_nodes_(parent_node, child_node);
+    edges.push_back(std::pair<unsigned int, unsigned int>(parent_idx, child_idx));
 }
 
 CharacterVector Graph::get_parents(std::string &node_name)
@@ -280,13 +283,13 @@ DataFrame Graph::get_ggraph_nodes()
 
 DataFrame Graph::get_ggraph_edges()
 {
-    // FIXME: preallocate vectors instead of push_back https://github.com/mailund/adrift/issues/6 id:5
-    CharacterVector from, to;
-    for (auto &n : nodes) {
-        for (auto child : n.children) {
-            from.push_back(n.name);
-            to.push_back(child->name);
-        }
+    CharacterVector from(edges.size()), to(edges.size());
+    for (int i = 0; i < edges.size(); ++i) {
+        std::pair<unsigned int,unsigned int> edge = edges[i];
+        Node &parent = nodes[edge.first];
+        Node &child = nodes[edge.second];
+        from[i] = parent.name;
+        to[i] = child.name;
     }
     return DataFrame::create(Named("from") = from,
                              Named("to") = to,

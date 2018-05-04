@@ -39,6 +39,8 @@ public:
 class Graph {
     std::vector<Node> nodes;
     std::map<std::string, unsigned int> nodes_map;
+    std::vector< std::pair<unsigned int, unsigned int> > edges;
+
     void connect_nodes_(Node &parent, Node &child);
 
     void assign_initial_coordinates();
