@@ -5,3 +5,4 @@
 ^\.imdone$
 ^data-raw$
 ^experiments.R$
+^appveyor\.yml$
