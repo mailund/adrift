@@ -1,4 +1,4 @@
-#include "graph.hpp"
+#include "graph.h"
 #include <stack>
 
 // [[Rcpp::plugins("cpp11")]]
@@ -60,7 +60,7 @@ CharacterVector Graph::get_node_names()
 {
     CharacterVector names(nodes.size());
     for (int i = 0; i < nodes.size(); ++i) {
-        names.push_back(nodes[i].get_name());
+        names[i] = nodes[i].get_name();
     }
     return names;
 }
@@ -154,7 +154,7 @@ bool Graph::is_connected()
             }
         }
     }
-    std::cout << seen.size() << std::endl;
+
     return seen.size() == nodes.size();
 }
 
@@ -245,14 +245,14 @@ void Graph::force_step(double drag)
 void Graph::graph_layout()
 {
     if (!is_connected()) {
-        std::cerr << "The graph needs to be connected before "
-                  << "the layout algorithm can be used." << std::endl;
+        stop("The graph needs to be connected before the "
+             "layout algorithm can be used.");
         return;
     }
 
     assign_initial_coordinates();
     return;
-    for (int i = 1; i <= 1000; ++i) {
+    for (int i = 1; i <= 100; ++i) {
         double drag = 1.0 / i;
         for (int j = 1; j <= 100; ++j) {
             force_step(drag);

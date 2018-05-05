@@ -11,17 +11,17 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.0.1
 Depends:
     dplyr,
-    pmatch,
-    tailr,
+    tibble,
     minilexer,
-    pmatch,
     matchbox (>= 0.0.0.9004),
     ggplot2 (>= 2.2.1.9000),
     ggraph,
     tidygraph,
     Rcpp
 Suggests:
-    reader
+    readr,
+    testthat,
+    covr
 LinkingTo: 
     Rcpp
 Remotes:

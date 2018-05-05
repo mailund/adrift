@@ -125,11 +125,9 @@ dot_get_edges <- function(edges) {
 }
 
 
-#' Import a dot file into an admixturegraph object
+#' Import a dot file
 #'
 #' @param text Text containing the graph description.
-#' @return An admixturegraph object
-#' @import admixturegraph
 #' @import dplyr
 #' @import matchbox
 #' @import tibble
