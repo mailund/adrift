@@ -108,7 +108,7 @@ CharacterVector Graph::get_parents(std::string &node_name)
     Node &node = nodes[nodes_map[node_name]];
     CharacterVector parent_names(node.parents.size());
     for (int i = 0; i < node.parents.size(); ++i) {
-        parent_names.push_back(node.parents[i]->name);
+        parent_names[i] = node.parents[i]->name;
     }
     return parent_names;
 }
@@ -122,7 +122,7 @@ CharacterVector Graph::get_children(std::string &node_name)
     Node &node = nodes[nodes_map[node_name]];
     CharacterVector children_names(node.children.size());
     for (int i = 0; i < node.children.size(); ++i) {
-        children_names.push_back(node.children[i]->name);
+        children_names[i] = node.children[i]->name;
     }
     return children_names;
 }
@@ -266,9 +266,9 @@ DataFrame Graph::get_node_positions()
     NumericVector x(nodes.size()), y(nodes.size());
     for (int i = 0; i < nodes.size(); ++i) {
         Node &n = nodes[i];
-        label.push_back(n.name);
-        x.push_back(n.get_x());
-        y.push_back(n.get_y());
+        label[i] = n.name;
+        x[i] = n.get_x();
+        y[i] = n.get_y();
     }
     return DataFrame::create(Named("label") = label,
                              Named("x") = x, Named("y") = y);
