@@ -28,9 +28,7 @@ test_that("we can construct a simple graph", {
   expect_equal(expect_warning(g$get_children("foo"), "Node is not found.*"),
                character(0))
 
-  expect_equal(g$is_leaf, c(FALSE, TRUE))
-  skip("we cannot yet access is_leaf vector by name")
-  #expect_true(g$is_leaf["b"])
-  #expect_false(g$is_leaf["a"])
-
+  expect_equal(g$is_leaf, c(a = FALSE, b = TRUE))
+  expect_true(g$is_leaf["b"])
+  expect_false(g$is_leaf["a"])
 })

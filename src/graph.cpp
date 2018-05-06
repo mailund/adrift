@@ -71,6 +71,7 @@ LogicalVector Graph::is_leaf()
     for (int i = 0; i < nodes.size(); ++i) {
         is_leaf_v[i] = nodes[i].is_leaf();
     }
+    is_leaf_v.attr("names") = get_node_names();
     return is_leaf_v;
 }
 
