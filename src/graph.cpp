@@ -103,7 +103,7 @@ CharacterVector Graph::get_parents(std::string &node_name)
 {
     if (nodes_map.find(node_name) == nodes_map.end()) {
         warning("Node is not found in graph.");
-        return R_NilValue;
+        return CharacterVector(0);
     }
     Node &node = nodes[nodes_map[node_name]];
     CharacterVector parent_names(node.parents.size());
@@ -117,7 +117,7 @@ CharacterVector Graph::get_children(std::string &node_name)
 {
     if (nodes_map.find(node_name) == nodes_map.end()) {
         warning("Node is not found in graph!");
-        return R_NilValue;
+        return CharacterVector(0);
     }
     Node &node = nodes[nodes_map[node_name]];
     CharacterVector children_names(node.children.size());
