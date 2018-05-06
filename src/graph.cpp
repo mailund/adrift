@@ -252,7 +252,6 @@ void Graph::graph_layout()
     }
 
     assign_initial_coordinates();
-    return;
     for (int i = 1; i <= 100; ++i) {
         double drag = 1.0 / i;
         for (int j = 1; j <= 100; ++j) {
@@ -272,14 +271,16 @@ DataFrame Graph::get_node_positions()
         y[i] = n.get_y();
     }
     return DataFrame::create(Named("label") = label,
-                             Named("x") = x, Named("y") = y);
+                             Named("x") = x, Named("y") = y,
+                             Named("stringsAsFactors") = false);
 }
 
 DataFrame Graph::get_ggraph_nodes()
 {
     CharacterVector node_names(get_node_names());
     return DataFrame::create(Named("label") = node_names,
-                             Named("is_leaf") = is_leaf());
+                             Named("is_leaf") = is_leaf(),
+                             Named("stringsAsFactors") = false);
 }
 
 DataFrame Graph::get_ggraph_edges()
