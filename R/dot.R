@@ -133,6 +133,10 @@ dot_get_edges <- function(edges) {
 #' @import tibble
 #' @export
 read_dot <- function(text) {
+
+    # to silence CMD CHECK
+    to <- in_degree <- from <- out_degree <- head <- . <- NULL
+
     edges <- dot_parse_graph(text)
     edges_tbl <- dot_get_edges(edges)
     edges_df <- as_tibble(edges_tbl)

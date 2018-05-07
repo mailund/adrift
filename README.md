@@ -7,7 +7,7 @@
 [![lifecycle](http://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![Project Status:
 Active](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
-[![Last-changedate](https://img.shields.io/badge/last%20change-2018--05--05-green.svg)](/commits/master)
+[![Last-changedate](https://img.shields.io/badge/last%20change-2018--05--07-green.svg)](/commits/master)
 [![packageversion](https://img.shields.io/badge/Package%20version-0.0.0.9000-orange.svg?style=flat-square)](commits/master)
 [![Travis build
 status](https://travis-ci.org/mailund/adrift.svg?branch=master)](https://travis-ci.org/mailund/adrift)
@@ -46,35 +46,16 @@ devtools::install_github("mailund/adrift")
 ## Example
 
 ``` r
+library(magrittr)
 library(ggplot2)
-library(tidygraph)
-#> 
-#> Attaching package: 'tidygraph'
-#> The following object is masked from 'package:stats':
-#> 
-#>     filter
 library(ggraph)
 library(matchbox)
 library(adrift)
-#> Loading required package: dplyr
-#> 
-#> Attaching package: 'dplyr'
-#> The following object is masked from 'package:ggplot2':
-#> 
-#>     vars
-#> The following objects are masked from 'package:stats':
-#> 
-#>     filter, lag
-#> The following objects are masked from 'package:base':
-#> 
-#>     intersect, setdiff, setequal, union
-#> Loading required package: tibble
-#> Loading required package: minilexer
 #> Loading required package: Rcpp
 
 ag_layout <- function(graph, circular, ...) {
     g$layout()
-    cbind(g$node_positions %>% select(x, y),
+    cbind(g$node_positions %>% dplyr::select(x, y),
           graph, circular = NA)
 }
 
@@ -88,8 +69,8 @@ for (i in seq_along(edges[,"parent"])) {
     g$connect_nodes(edges[i,"parent"], edges[i,"child"])
 }
 
-graph <- tbl_graph(nodes = g$ggraph_nodes,
-                   edges = g$ggraph_edges)
+graph <- tidygraph::tbl_graph(nodes = g$ggraph_nodes,
+                              edges = g$ggraph_edges)
 graph %>%
     ggraph(ag_layout) +
     geom_edge_link(edge_width = 0.8, edge_colour = "darkblue") +
