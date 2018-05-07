@@ -62,7 +62,7 @@ test_that("we get the right edge information", {
     expect_false(edge_info %>% edge_exists("e", "a"))
     expect_false(edge_info %>% edge_exists("e", "b"))
 
-    {graph <- make_graph()
+    graph <- make_graph()
     edge_info <- graph$ggraph_edges
     expect_true(edge_info %>% edge_exists("d", "b"))
     expect_true(edge_info %>% edge_exists("e", "a"))

@@ -5,43 +5,43 @@
 using namespace Rcpp;
 
 
-void Node::compute_dist_to_leaf()
+void Graph::compute_dist_to_leaf(Node &node)
 {
-    if (dist_to_leaf >= 0) return;
+    if (node.dist_to_leaf >= 0) return;
 
-    dist_to_leaf = 0;
-    for (auto child : children) {
-        child->compute_dist_to_leaf();
-        dist_to_leaf = std::max(dist_to_leaf, child->dist_to_leaf + 1);
+    node.dist_to_leaf = 0;
+    for (auto child : node.children) {
+        compute_dist_to_leaf(*child);
+        node.dist_to_leaf = std::max(node.dist_to_leaf, child->dist_to_leaf + 1);
     }
 }
 
-double Node::assign_x_coordinate(int &node_no)
+double Graph::assign_x_coordinate(Node &node, int &node_no)
 {
-    if (x >= 0) return x;
+    if (node.x >= 0) return node.x;
 
-    if (is_leaf()) {
-        return x = (double)node_no++;
+    if (node.is_leaf()) {
+        return node.x = (double)node_no++;
     } else {
-        if (children.size() == 1) {
-            return x = children[0]->assign_x_coordinate(node_no);
+        if (node.children.size() == 1) {
+            return node.x = assign_x_coordinate(*(node.children[0]), node_no);
 
-        } else if (children.size() == 2){
+        } else if (node.children.size() == 2){
             RNGScope rng;
             double sum_x = 0.0;
             bool order = runif(1, 0, 1)[0] < 0.5;
-            sum_x += children[order]->assign_x_coordinate(node_no);
-            sum_x += children[!order]->assign_x_coordinate(node_no);
-            return x = sum_x / 2.0;
+            sum_x += assign_x_coordinate(*(node.children[order]), node_no);
+            sum_x += assign_x_coordinate(*(node.children[!order]), node_no);
+            return node.x = sum_x / 2.0;
 
         } else {
             // There shouldn't be high degree nodes like this, but
             // just in case, we do this
             double sum_x = 0.0;
-            for (auto child : children) {
-                sum_x += child->assign_x_coordinate(node_no);
+            for (auto child : node.children) {
+                sum_x += assign_x_coordinate(*child, node_no);
             }
-            return x = sum_x / children.size();
+            return node.x = sum_x / node.children.size();
         }
     }
 }
@@ -163,8 +163,8 @@ void Graph::assign_initial_coordinates()
 {
     int node_no = 0;
     for (auto &n : nodes) {
-        n.assign_x_coordinate(node_no); // assign x-coord. tree-like
-        n.compute_dist_to_leaf(); // y coordinate determined by level
+        assign_x_coordinate(n, node_no); // assign x-coord. tree-like
+        compute_dist_to_leaf(n); // y coordinate determined by level
     }
 }
 

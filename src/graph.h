@@ -7,11 +7,8 @@
 #include <Rcpp.h>
 
 
-class Node {
-    friend class Graph;
-
+struct Node {
     std::string name;
-
     std::vector<Node*> parents;
     std::vector<Node*> children;
 
@@ -32,8 +29,7 @@ public:
     bool is_leaf() const { return children.empty(); }
     bool is_root() const { return parents.empty(); }
 
-    void compute_dist_to_leaf();
-    double assign_x_coordinate(int &node_no);
+
 };
 
 class Graph {
@@ -47,6 +43,9 @@ class Graph {
     void compute_forces(std::vector<double> &x, double drag);
     void force_step(double drag);
 
+
+    void compute_dist_to_leaf(Node &node);
+    double assign_x_coordinate(Node &node, int &node_no);
 
 public:
     Graph() {}
