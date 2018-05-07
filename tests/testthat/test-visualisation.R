@@ -62,7 +62,7 @@ test_that("we get the right edge information", {
     expect_false(edge_info %>% edge_exists("e", "a"))
     expect_false(edge_info %>% edge_exists("e", "b"))
 
-    graph <- make_graph()
+    {graph <- make_graph()
     edge_info <- graph$ggraph_edges
     expect_true(edge_info %>% edge_exists("d", "b"))
     expect_true(edge_info %>% edge_exists("e", "a"))
@@ -105,5 +105,6 @@ test_that("we get the right y-coordinates", {
   graph$layout()
   positions <- graph$node_positions
   skip("we do not invalidate caching when updating the graph")
+  return()
   expect_equal(positions$y, c(0, 0, 0, 1, 2, 2, 3, 1, 0)) # a,b,c, d e,f g h i
 })
