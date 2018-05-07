@@ -10,9 +10,10 @@ void Graph::compute_dist_to_leaf(Node &node)
     if (node.dist_to_leaf >= 0) return;
 
     node.dist_to_leaf = 0;
-    for (auto child : node.children) {
-        compute_dist_to_leaf(*child);
-        node.dist_to_leaf = std::max(node.dist_to_leaf, child->dist_to_leaf + 1);
+    for (unsigned int child_idx : node.children) {
+        Node &child = nodes[child_idx];
+        compute_dist_to_leaf(child);
+        node.dist_to_leaf = std::max(node.dist_to_leaf, child.dist_to_leaf + 1);
     }
 }
 
@@ -24,22 +25,26 @@ double Graph::assign_x_coordinate(Node &node, int &node_no)
         return node.x = (double)node_no++;
     } else {
         if (node.children.size() == 1) {
-            return node.x = assign_x_coordinate(*(node.children[0]), node_no);
+            Node &child = nodes[node.children[0]];
+            return node.x = assign_x_coordinate(child, node_no);
 
         } else if (node.children.size() == 2){
             RNGScope rng;
             double sum_x = 0.0;
             bool order = runif(1, 0, 1)[0] < 0.5;
-            sum_x += assign_x_coordinate(*(node.children[order]), node_no);
-            sum_x += assign_x_coordinate(*(node.children[!order]), node_no);
+            Node &left = nodes[node.children[order]];
+            Node &right = nodes[node.children[!order]];
+            sum_x += assign_x_coordinate(left, node_no);
+            sum_x += assign_x_coordinate(right, node_no);
             return node.x = sum_x / 2.0;
 
         } else {
             // There shouldn't be high degree nodes like this, but
             // just in case, we do this
             double sum_x = 0.0;
-            for (auto child : node.children) {
-                sum_x += assign_x_coordinate(*child, node_no);
+            for (unsigned int child_idx : node.children) {
+                Node &child = nodes[child_idx];
+                sum_x += assign_x_coordinate(child, node_no);
             }
             return node.x = sum_x / node.children.size();
         }
@@ -75,10 +80,12 @@ LogicalVector Graph::is_leaf()
     return is_leaf_v;
 }
 
-void Graph::connect_nodes_(Node &parent, Node &child)
+void Graph::connect_nodes_(unsigned int parent_idx, unsigned int child_idx)
 {
-    parent.children.push_back(&child);
-    child.parents.push_back(&parent);
+    Node &parent = nodes[parent_idx];
+    Node &child = nodes[child_idx];
+    parent.children.push_back(child_idx);
+    child.parents.push_back(parent_idx);
 }
 
 void Graph::connect_nodes(std::string &parent, std::string &child)
@@ -94,9 +101,7 @@ void Graph::connect_nodes(std::string &parent, std::string &child)
 
     unsigned int parent_idx = nodes_map[parent];
     unsigned int child_idx = nodes_map[child];
-    Node &parent_node = nodes[parent_idx];
-    Node &child_node = nodes[child_idx];
-    connect_nodes_(parent_node, child_node);
+    connect_nodes_(parent_idx, child_idx);
     edges.push_back(std::pair<unsigned int, unsigned int>(parent_idx, child_idx));
 }
 
@@ -109,7 +114,7 @@ CharacterVector Graph::get_parents(std::string &node_name)
     Node &node = nodes[nodes_map[node_name]];
     CharacterVector parent_names(node.parents.size());
     for (int i = 0; i < node.parents.size(); ++i) {
-        parent_names[i] = node.parents[i]->name;
+        parent_names[i] = nodes[node.parents[i]].name;
     }
     return parent_names;
 }
@@ -123,7 +128,7 @@ CharacterVector Graph::get_children(std::string &node_name)
     Node &node = nodes[nodes_map[node_name]];
     CharacterVector children_names(node.children.size());
     for (int i = 0; i < node.children.size(); ++i) {
-        children_names[i] = node.children[i]->name;
+        children_names[i] = nodes[node.children[i]].name;
     }
     return children_names;
 }
@@ -135,23 +140,23 @@ bool Graph::is_connected()
         return true;
     }
 
-    std::set<Node*> seen;
-    std::stack<Node*> to_process;
-    Node *node = &nodes[0];
-    to_process.push(node); seen.insert(node);
+    std::set<unsigned int> seen;
+    std::stack<unsigned int> to_process;
+    to_process.push(0); seen.insert(0);
 
     while (!to_process.empty()) {
-        node = to_process.top(); to_process.pop();
-        for (auto n : node->parents) {
-            if (seen.find(n) == seen.end()) {
-                to_process.push(n);
-                seen.insert(n);
+        unsigned int node_idx = to_process.top(); to_process.pop();
+        Node &node = nodes[node_idx];
+        for (unsigned int parent_idx : node.parents) {
+           if (seen.find(parent_idx) == seen.end()) {
+                to_process.push(parent_idx);
+                seen.insert(parent_idx);
             }
         }
-        for (auto n : node->children) {
-            if (seen.find(n) == seen.end()) {
-                to_process.push(n);
-                seen.insert(n);
+        for (unsigned int child_idx : node.children) {
+            if (seen.find(child_idx) == seen.end()) {
+                to_process.push(child_idx);
+                seen.insert(child_idx);
             }
         }
     }
@@ -200,8 +205,8 @@ void Graph::compute_forces(std::vector<double> &x, double drag)
     // children (parent moved by gravety)
     for (int i = 0; i < n; ++i) {
         Node &a = nodes[i];
-        for (auto bp : a.children) {
-            Node &b = *bp;
+        for (unsigned int b_idx : a.children) {
+            Node &b = nodes[b_idx];
             int j = nodes_map[b.name];
 
             double vx = a.get_x() - b.get_x();
@@ -223,8 +228,9 @@ void Graph::compute_forces(std::vector<double> &x, double drag)
         if (a.children.empty()) continue;
 
         double sum_x = 0.0;
-        for (auto bp : a.children) {
-            sum_x += bp->get_x();
+        for (unsigned int b_idx : a.children) {
+            Node &b = nodes[b_idx];
+            sum_x += b.get_x();
         }
         double mean_x = sum_x / a.children.size();
         double force = - drag * (a.get_x() - mean_x);

@@ -9,8 +9,8 @@
 
 struct Node {
     std::string name;
-    std::vector<Node*> parents;
-    std::vector<Node*> children;
+    std::vector<unsigned int> parents;
+    std::vector<unsigned int> children;
 
     // Used for plotting...
     double x;
@@ -37,7 +37,7 @@ class Graph {
     std::map<std::string, unsigned int> nodes_map;
     std::vector< std::pair<unsigned int, unsigned int> > edges;
 
-    void connect_nodes_(Node &parent, Node &child);
+    void connect_nodes_(unsigned int parent_idx, unsigned int child_idx);
 
     void assign_initial_coordinates();
     void compute_forces(std::vector<double> &x, double drag);
