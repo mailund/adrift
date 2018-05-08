@@ -54,6 +54,7 @@ public:
     void add_node(std::string &name);
     int get_no_nodes() const { return nodes.size(); }
     Rcpp::CharacterVector get_node_names() const;
+    bool has_node(std::string &name) const;
 
     Rcpp::LogicalVector get_leaf_status() const;
 

@@ -76,6 +76,11 @@ CharacterVector Graph::get_node_names() const
     return names;
 }
 
+bool Graph::has_node(std::string &name) const
+{
+    return nodes_map.find(name) != nodes_map.end();
+}
+
 LogicalVector Graph::get_leaf_status() const
 {
     LogicalVector is_leaf_v(nodes.size());
@@ -319,6 +324,7 @@ RCPP_MODULE(Graph) {
 
         .method("add_node", &Graph::add_node)
         .property("no_nodes", &Graph::get_no_nodes)
+        .method("has_node", &Graph::has_node)
         .method("get_nodes", &Graph::get_node_names)
         .method("get_leaf_status", &Graph::get_leaf_status)
 
