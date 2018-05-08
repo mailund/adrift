@@ -32,13 +32,13 @@ test_that("we do not attempt to layout a graph that is not connected", {
 
 test_that("we get the right node information", {
     tree <- make_tree()
-    node_info <- tree$ggraph_nodes
-    expect_equal(node_info$label, tree$nodes)
+    node_info <- tree$get_ggraph_nodes()
+    expect_equal(node_info$label, tree$get_nodes())
     expect_equal(node_info$is_leaf, c(TRUE, TRUE, TRUE, FALSE, FALSE))
 
     graph <- make_graph()
-    node_info <- graph$ggraph_nodes
-    expect_equal(node_info$label, graph$nodes)
+    node_info <- graph$get_ggraph_nodes()
+    expect_equal(node_info$label, graph$get_nodes())
     expect_equal(node_info$is_leaf,
                  c(TRUE, TRUE, TRUE, # a b c
                    FALSE, FALSE, FALSE, FALSE)) # d e f g
@@ -53,7 +53,7 @@ edge_exists <- function(edge_info, from, to) {
 
 test_that("we get the right edge information", {
     tree <- make_tree()
-    edge_info <- tree$ggraph_edges
+    edge_info <- tree$get_ggraph_edges()
     expect_true(edge_info %>% edge_exists("d", "a"))
     expect_true(edge_info %>% edge_exists("d", "b"))
     expect_false(edge_info %>% edge_exists("d", "c"))
@@ -63,7 +63,7 @@ test_that("we get the right edge information", {
     expect_false(edge_info %>% edge_exists("e", "b"))
 
     graph <- make_graph()
-    edge_info <- graph$ggraph_edges
+    edge_info <- graph$get_ggraph_edges()
     expect_true(edge_info %>% edge_exists("d", "b"))
     expect_true(edge_info %>% edge_exists("e", "a"))
     expect_true(edge_info %>% edge_exists("e", "d"))
@@ -75,21 +75,23 @@ test_that("we get the right edge information", {
 
 test_that("we get the right y-coordinates", {
   tree <- make_tree()
-  positions <- tree$node_positions
-  expect_equal(positions$label, tree$nodes)
-  expect_equal(positions$x, rep(-1, length(tree$nodes)))
-  expect_equal(positions$y, rep(-1, length(tree$nodes)))
+  positions <- tree$get_node_positions()
+  nodes <- tree$get_nodes()
+  expect_equal(positions$label, nodes)
+  expect_equal(positions$x, rep(-1, length(nodes)))
+  expect_equal(positions$y, rep(-1, length(nodes)))
   tree$layout()
-  positions <- tree$node_positions
+  positions <- tree$get_node_positions()
   expect_equal(positions$y, c(0, 0, 0, 1, 2)) # order a,b,c, d, e
 
   graph <- make_graph()
-  positions <- graph$node_positions
-  expect_equal(positions$label, graph$nodes)
-  expect_equal(positions$x, rep(-1, length(graph$nodes)))
-  expect_equal(positions$y, rep(-1, length(graph$nodes)))
+  positions <- graph$get_node_positions()
+  nodes <- graph$get_nodes()
+  expect_equal(positions$label, nodes)
+  expect_equal(positions$x, rep(-1, length(nodes)))
+  expect_equal(positions$y, rep(-1, length(nodes)))
   graph$layout()
-  positions <- graph$node_positions
+  positions <- graph$get_node_positions()
   expect_equal(positions$y, c(0, 0, 0, 1, 2, 2, 3)) # order a,b,c, d e,f g
 
   # here we test a case that we shouldn't really see in an admixture graph,
@@ -97,14 +99,12 @@ test_that("we get the right y-coordinates", {
   graph$add_node("h")
   graph$connect_nodes("e", "h")
   graph$layout()
-  positions <- graph$node_positions
+  positions <- graph$get_node_positions()
   expect_equal(positions$y, c(0, 0, 0, 1, 2, 2, 3, 0)) # a,b,c, d e,f g h
 
   graph$add_node("i")
   graph$connect_nodes("h", "i")
   graph$layout()
-  positions <- graph$node_positions
-  skip("we do not invalidate caching when updating the graph")
-  return()
+  positions <- graph$get_node_positions()
   expect_equal(positions$y, c(0, 0, 0, 1, 2, 2, 3, 1, 0)) # a,b,c, d e,f g h i
 })

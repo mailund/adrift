@@ -4,6 +4,12 @@
 // [[Rcpp::plugins("cpp11")]]
 using namespace Rcpp;
 
+void Graph::reset_coordinates()
+{
+    for (Node &node : nodes) {
+        node.reset();
+    }
+}
 
 void Graph::compute_dist_to_leaf(Node &node)
 {
@@ -61,7 +67,7 @@ void Graph::add_node(std::string &name)
     nodes_map[name] = nodes.size() - 1;
 }
 
-CharacterVector Graph::get_node_names()
+CharacterVector Graph::get_node_names() const
 {
     CharacterVector names(nodes.size());
     for (int i = 0; i < nodes.size(); ++i) {
@@ -70,7 +76,7 @@ CharacterVector Graph::get_node_names()
     return names;
 }
 
-LogicalVector Graph::is_leaf()
+LogicalVector Graph::get_leaf_status() const
 {
     LogicalVector is_leaf_v(nodes.size());
     for (int i = 0; i < nodes.size(); ++i) {
@@ -98,20 +104,20 @@ void Graph::connect_nodes(std::string &parent, std::string &child)
         stop("The child node is not found in the graph.");
         return;
     }
-
     unsigned int parent_idx = nodes_map[parent];
     unsigned int child_idx = nodes_map[child];
     connect_nodes_(parent_idx, child_idx);
     edges.push_back(std::pair<unsigned int, unsigned int>(parent_idx, child_idx));
 }
 
-CharacterVector Graph::get_parents(std::string &node_name)
+CharacterVector Graph::get_parents(std::string &node_name) const
 {
     if (nodes_map.find(node_name) == nodes_map.end()) {
         warning("Node is not found in graph.");
         return CharacterVector(0);
     }
-    Node &node = nodes[nodes_map[node_name]];
+    unsigned int node_idx = nodes_map.at(node_name);
+    const Node &node = nodes[node_idx];
     CharacterVector parent_names(node.parents.size());
     for (int i = 0; i < node.parents.size(); ++i) {
         parent_names[i] = nodes[node.parents[i]].name;
@@ -119,13 +125,14 @@ CharacterVector Graph::get_parents(std::string &node_name)
     return parent_names;
 }
 
-CharacterVector Graph::get_children(std::string &node_name)
+CharacterVector Graph::get_children(std::string &node_name) const
 {
     if (nodes_map.find(node_name) == nodes_map.end()) {
         warning("Node is not found in graph!");
         return CharacterVector(0);
     }
-    Node &node = nodes[nodes_map[node_name]];
+    unsigned int node_idx = nodes_map.at(node_name);
+    const Node &node = nodes[node_idx];
     CharacterVector children_names(node.children.size());
     for (int i = 0; i < node.children.size(); ++i) {
         children_names[i] = nodes[node.children[i]].name;
@@ -133,7 +140,7 @@ CharacterVector Graph::get_children(std::string &node_name)
     return children_names;
 }
 
-bool Graph::is_connected()
+bool Graph::is_connected() const
 {
     if (nodes.empty()) {
         warning("Graph is empty!");
@@ -146,7 +153,7 @@ bool Graph::is_connected()
 
     while (!to_process.empty()) {
         unsigned int node_idx = to_process.top(); to_process.pop();
-        Node &node = nodes[node_idx];
+        const Node &node = nodes[node_idx];
         for (unsigned int parent_idx : node.parents) {
            if (seen.find(parent_idx) == seen.end()) {
                 to_process.push(parent_idx);
@@ -257,6 +264,7 @@ void Graph::graph_layout()
         return;
     }
 
+    reset_coordinates();
     assign_initial_coordinates();
     for (int i = 1; i <= 100; ++i) {
         double drag = 1.0 / i;
@@ -266,12 +274,12 @@ void Graph::graph_layout()
     }
 }
 
-DataFrame Graph::get_node_positions()
+DataFrame Graph::get_node_positions() const
 {
     CharacterVector label(nodes.size());
     NumericVector x(nodes.size()), y(nodes.size());
     for (int i = 0; i < nodes.size(); ++i) {
-        Node &n = nodes[i];
+        const Node &n = nodes[i];
         label[i] = n.name;
         x[i] = n.get_x();
         y[i] = n.get_y();
@@ -281,21 +289,21 @@ DataFrame Graph::get_node_positions()
                              Named("stringsAsFactors") = false);
 }
 
-DataFrame Graph::get_ggraph_nodes()
+DataFrame Graph::get_ggraph_nodes() const
 {
     CharacterVector node_names(get_node_names());
     return DataFrame::create(Named("label") = node_names,
-                             Named("is_leaf") = is_leaf(),
+                             Named("is_leaf") = get_leaf_status(),
                              Named("stringsAsFactors") = false);
 }
 
-DataFrame Graph::get_ggraph_edges()
+DataFrame Graph::get_ggraph_edges() const
 {
     CharacterVector from(edges.size()), to(edges.size());
     for (int i = 0; i < edges.size(); ++i) {
         std::pair<unsigned int,unsigned int> edge = edges[i];
-        Node &parent = nodes[edge.first];
-        Node &child = nodes[edge.second];
+        const Node &parent = nodes[edge.first];
+        const Node &child = nodes[edge.second];
         from[i] = parent.name;
         to[i] = child.name;
     }
@@ -311,19 +319,18 @@ RCPP_MODULE(Graph) {
 
         .method("add_node", &Graph::add_node)
         .property("no_nodes", &Graph::get_no_nodes)
-        .property("nodes", &Graph::get_node_names)
-        .property("is_leaf", &Graph::is_leaf)
+        .method("get_nodes", &Graph::get_node_names)
+        .method("get_leaf_status", &Graph::get_leaf_status)
 
         .method("connect_nodes", &Graph::connect_nodes)
 
         .method("get_parents", &Graph::get_parents)
         .method("get_children", &Graph::get_children)
 
-        .property("connected", &Graph::is_connected)
         .method("layout", &Graph::graph_layout)
-        .property("node_positions", &Graph::get_node_positions)
+        .method("get_node_positions", &Graph::get_node_positions)
 
-        .property("ggraph_nodes", &Graph::get_ggraph_nodes)
-        .property("ggraph_edges", &Graph::get_ggraph_edges)
+        .method("get_ggraph_nodes", &Graph::get_ggraph_nodes)
+        .method("get_ggraph_edges", &Graph::get_ggraph_edges)
     ;
 }
