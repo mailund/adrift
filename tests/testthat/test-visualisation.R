@@ -26,6 +26,8 @@ make_graph <- function() {
 
 test_that("we do not attempt to layout a graph that is not connected", {
     g <- new(Graph)
+    expect_warning(g$layout(), "Graph is empty!")
+
     g$add_node("a") ; g$add_node("b")
     expect_error(g$layout(), "The graph needs to be connected.*")
 })
