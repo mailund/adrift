@@ -3,9 +3,9 @@
 # nocov start
 
 ag_layout <- function(g) function(graph, circular, ...) {
-    node_positions <- with(g$get_node_positions(), data.frame(x = x, y = y))
     g$layout()
-    cbind(node_positions,
+    #node_positions <- with(g$get_node_positions(), data.frame(x = x, y = y))
+    cbind(g$get_node_positions() %>% dplyr::select(x, y),
           graph, circular = NA)
 }
 
