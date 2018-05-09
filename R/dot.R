@@ -125,7 +125,7 @@ parse_dot <- function(text) {
     }
     # nocov end
 
-    graph <- new(Graph)
+    graph <- methods::new(Graph)
     edges <- dot_parse_graph(text)
     admixture_vars <- matchbox::NIL
     admixture_props <- matchbox::NIL

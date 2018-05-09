@@ -4,20 +4,17 @@
 \alias{make_graph_plot}
 \title{Construct a graph plot object.}
 \usage{
-make_graph_plot(graph, edge_colour = "darkblue", leaf_label_angle = 0,
-  leaf_label_size = 4)
+make_graph_plot(graph, ...)
 }
 \arguments{
 \item{graph}{An admixture/drift graph.}
 
-\item{edge_colour}{The colour to use for the graph edges.}
-
-\item{leaf_label_angle}{Angle to display leaf nodes in.
-Useful if they would otherwise overlap.}
+\item{...}{Parameters that will be forwarded to \code{\link[ggraph:geom_edge_link]{ggraph::geom_edge_link()}}.}
 }
 \value{
-A graph object
+A graph plot object.
 }
 \description{
-This object can be modified using \code{ggraph} and \code{ggplot2} functions.
+Parameters in \code{...} will be forwarded to \code{\link[ggraph:geom_edge_link]{ggraph::geom_edge_link()}}.
+The returned object can be modified using \code{ggraph} and \code{ggplot2} functions.
 }

@@ -8,10 +8,14 @@ show_inner_node_labels(plt, ...)
 }
 \arguments{
 \item{plt}{Plot object created by \code{\link[=make_graph_plot]{make_graph_plot()}}.}
+
+\item{...}{Parameters that will be forwarded to \code{\link[ggraph:geom_node_label]{ggraph::geom_node_label()}}.}
 }
 \value{
-Updated plotting object
+Updated plotting object.
 }
 \description{
-Add inner nodes labels
+This function is a wrapper around \code{\link[ggraph:geom_node_label]{ggraph::geom_node_label()}}, so
+you can modify the plot using \code{...} that will be forwarded to that
+function.
 }
