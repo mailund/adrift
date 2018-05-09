@@ -5,14 +5,13 @@ cache: packages
 apt_packages:
   - libudunits2-dev
 
-r_bitbucket_packages:
-  - coolbutuseless/minilexer
-
 r_github_packages:
   - thomasp85/ggraph
   - tidyverse/ggplot2
   - mailund/matchbox
 
+r_bitbucket_packages:
+  - coolbutuseless/minilexer
 
 r:
   - 3.2
