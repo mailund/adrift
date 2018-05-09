@@ -138,7 +138,7 @@ parse_dot <- function(text) {
     }
 
     if (ll_is_nil(admixture_vars)) {
-        admixture_vars <- numeric(0)
+        admixture_proportions <- numeric(0)
     } else {
         admixture_proportions <- as.vector(admixture_props)
         names(admixture_proportions) <- as.vector(admixture_vars)
