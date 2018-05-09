@@ -63,6 +63,18 @@ graph %>%
 ```
 
 ```{r}
+library(magrittr)
+library(adrift)
+
+graph <- parse_qpgraph(readr::read_file("data-raw/Basic_OngeEA_wArch.graph"))
+graph %>% 
+    make_graph_plot(edge_colour = "darkblue") %>%
+    show_leaf_labels(nudge_y = -0.5, angle = 15) %>%
+    show_inner_node_labels()
+
+```
+
+```{r}
 graph <- parse_dot(readr::read_file("data-raw/BosGraph.dot"))
 graph %>% 
     make_graph_plot(edge_colour = "red") %>%

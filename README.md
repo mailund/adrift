@@ -60,10 +60,23 @@ graph %>%
 <img src="man/figures/README-unnamed-chunk-1-1.png" width="100%" />
 
 ``` r
+library(magrittr)
+library(adrift)
+
+graph <- parse_qpgraph(readr::read_file("data-raw/Basic_OngeEA_wArch.graph"))
+graph %>% 
+    make_graph_plot(edge_colour = "darkblue") %>%
+    show_leaf_labels(nudge_y = -0.5, angle = 15) %>%
+    show_inner_node_labels()
+```
+
+<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
+
+``` r
 graph <- parse_dot(readr::read_file("data-raw/BosGraph.dot"))
 graph %>% 
     make_graph_plot(edge_colour = "red") %>%
     show_leaf_labels(angle = -90, size = 2.8, nudge_y = -1, hjust = 0)
 ```
 
-<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />

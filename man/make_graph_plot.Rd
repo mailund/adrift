@@ -9,12 +9,12 @@ make_graph_plot(graph, ...)
 \arguments{
 \item{graph}{An admixture/drift graph.}
 
-\item{...}{Parameters that will be forwarded to \code{\link[ggraph:geom_edge_link]{ggraph::geom_edge_link()}}.}
+\item{...}{Parameters passed to \code{\link[ggraph:geom_edge_link]{ggraph::geom_edge_link()}} that you can
+use to customise the edges.}
 }
 \value{
-A graph plot object.
+A graph object
 }
 \description{
-Parameters in \code{...} will be forwarded to \code{\link[ggraph:geom_edge_link]{ggraph::geom_edge_link()}}.
-The returned object can be modified using \code{ggraph} and \code{ggplot2} functions.
+This object can be modified using \code{ggraph} and \code{ggplot2} functions.
 }

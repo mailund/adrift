@@ -4,19 +4,21 @@
 
 ag_layout <- function(g) function(graph, circular, ...) {
     g$layout()
-    #node_positions <- with(g$get_node_positions(), data.frame(x = x, y = y))
-    cbind(g$get_node_positions() %>% dplyr::select(x, y),
-          graph, circular = NA)
+    node_positions <- with(
+        g$get_node_positions(),
+        data.frame(x = x, y = y)
+    )
+    cbind(node_positions, graph, circular = NA)
 }
 
 #' Construct a graph plot object.
 #'
-#' Parameters in `...` will be forwarded to [ggraph::geom_edge_link()].
-#' The returned object can be modified using `ggraph` and `ggplot2` functions.
+#' This object can be modified using `ggraph` and `ggplot2` functions.
 #'
 #' @param graph An admixture/drift graph.
-#' @param ... Parameters that will be forwarded to [ggraph::geom_edge_link()].
-#' @return A graph plot object.
+#' @param ... Parameters passed to [ggraph::geom_edge_link()] that you can
+#'            use to customise the edges.
+#' @return A graph object
 #' @export
 make_graph_plot <- function(graph, ...) {
     if (!requireNamespace("ggraph", quietly = TRUE)) {
@@ -25,7 +27,7 @@ make_graph_plot <- function(graph, ...) {
     if (!requireNamespace("tidygraph", quietly = TRUE)) {
         stop("Plotting require the tidygraph package, which is not installed")
     }
-    if (!requireNamespace("ggplot2",, quietly = TRUE,
+    if (!requireNamespace("ggplot2", quietly = TRUE,
                           versionCheck = list(op = ">=", version = "2.2.1.9000")
     )) {
         stop("Plotting require package ggplot2 (>= 2.2.1.9000)")
@@ -39,37 +41,33 @@ make_graph_plot <- function(graph, ...) {
         ggraph::theme_graph()
 }
 
-#' Add leaf labels to a graph plot.
+#' Add leaf labels.
 #'
-#' This function is a wrapper around [ggraph::geom_node_text()], so
-#' you can modify the plot using `...` that will be forwarded to that
-#' function.
+#' This is a wrapper around [ggraph::geom_node_text()] and you can customise
+#' the plotting through `...`
 #'
 #' @param plt Plot object created by [make_graph_plot()].
-#' @param ... Parameters that will be forwarded to [ggraph::geom_node_text()].
+#' @param ... Parameter forwarded to [ggraph::geom_node_text()].
 #' @return Updated plotting object
 #' @export
 show_leaf_labels <- function(plt, ...) {
-    plt + ggraph::geom_node_text(ggplot2::aes_(filter = "is_leaf",
-                                               label = "label"),
+    is_leaf <- label <- NULL # to satisfy CMD CHECK
+    plt + ggraph::geom_node_text(ggplot2::aes(filter = is_leaf, label = label),
                                  ...)
 }
 
-#' Add inner nodes labels
+#' Add inner nodes labels.
 #'
-#' This function is a wrapper around [ggraph::geom_node_label()], so
-#' you can modify the plot using `...` that will be forwarded to that
-#' function.
+#' This is a wrapper around [ggraph::geom_node_label()] and you can use
+#' `...` to customise the plot.
 #'
 #' @param plt Plot object created by [make_graph_plot()].
-#' @param ... Parameters that will be forwarded to [ggraph::geom_node_label()].
-#' @return Updated plotting object.
+#' @param ... Parameter forwarded to [ggraph::geom_node_label()].
+#' @return Updated plotting object
 #' @export
 show_inner_node_labels <- function(plt, ...) {
-    # to silence CMD CHECK notes
-    is_leaf <- label <- NULL
-    plt + ggraph::geom_node_label(ggplot2::aes(filter = !is_leaf,
-                                               label = label),
+    is_leaf <- label <- NULL # to satisfy CMD CHECK
+    plt + ggraph::geom_node_label(ggplot2::aes(filter = !is_leaf, label = label),
                                   size = 3, nudge_y = -0.1, repel = TRUE,
                                   ...)
 }

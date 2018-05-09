@@ -2,20 +2,19 @@
 % Please edit documentation in R/plotting.R
 \name{show_leaf_labels}
 \alias{show_leaf_labels}
-\title{Add leaf labels to a graph plot.}
+\title{Add leaf labels.}
 \usage{
 show_leaf_labels(plt, ...)
 }
 \arguments{
 \item{plt}{Plot object created by \code{\link[=make_graph_plot]{make_graph_plot()}}.}
 
-\item{...}{Parameters that will be forwarded to \code{\link[ggraph:geom_node_text]{ggraph::geom_node_text()}}.}
+\item{...}{Parameter forwarded to \code{\link[ggraph:geom_node_text]{ggraph::geom_node_text()}}.}
 }
 \value{
 Updated plotting object
 }
 \description{
-This function is a wrapper around \code{\link[ggraph:geom_node_text]{ggraph::geom_node_text()}}, so
-you can modify the plot using \code{...} that will be forwarded to that
-function.
+This is a wrapper around \code{\link[ggraph:geom_node_text]{ggraph::geom_node_text()}} and you can customise
+the plotting through \code{...}
 }
