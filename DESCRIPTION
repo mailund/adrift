@@ -11,17 +11,15 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.0.1
 Imports:
     methods,
-    dplyr,
-    tibble,
-    minilexer,
-    matchbox (>= 0.0.0.9004),
-    ggplot2 (>= 2.2.1.9000),
-    ggraph,
-    tidygraph
+    matchbox (>= 0.0.0.9004)
 Depends:
     Rcpp
 Suggests:
+    minilexer,
     readr,
+    ggraph,
+    tidygraph,
+    ggplot2 (>= 2.2.1.9000),
     testthat,
     covr
 LinkingTo: 

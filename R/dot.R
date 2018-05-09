@@ -1,5 +1,4 @@
 
-#' @import matchbox
 dot_parse_graph <- function(text) {
     lexer <- c(
         digraph        = "digraph",
@@ -69,7 +68,7 @@ dot_parse_graph <- function(text) {
         error = reset(pos))
     }
 
-    edges <- NIL
+    edges <- matchbox::NIL
     parse_edge <- function() {
         pos <- lexer$position
         tryCatch({
@@ -81,7 +80,7 @@ dot_parse_graph <- function(text) {
             label <- ifelse(!is.null(attribs[["label"]]),
                             attribs[["label"]], NA)
             edge <- c(from = from, to = to, label = label)
-            edges <<- CONS(edge, edges)
+            edges <<- matchbox::CONS(edge, edges)
             return(TRUE)
         },
         error = reset(pos))
@@ -113,14 +112,24 @@ dot_parse_graph <- function(text) {
 #' Parse a graph in GraphViz' .dot format
 #'
 #' @param text Text containing the graph description.
-#' @import matchbox
 #' @export
 parse_dot <- function(text) {
+    if (!requireNamespace("minilexer")) {
+        skip("Parsers require the minilexer package, which is not installed")
+        return(NULL)
+    }
+    if (!requireNamespace("matchbox",
+                          versionCheck = list(op = ">=", version = "0.2.0.9004")
+                          )) {
+        skip("Parsers require package matchbox (>= 0.0.0.9004)")
+        return(NULL)
+    }
+
     graph <- new(Graph)
     edges <- dot_parse_graph(text)
-    admixture_vars <- NIL
-    admixture_props <- NIL
-    while (!ll_is_nil(edges)) {
+    admixture_vars <- matchbox::NIL
+    admixture_props <- matchbox::NIL
+    while (!matchbox::ll_is_nil(edges)) {
         edge <- edges$car
         from <- edge[1] ; to <- edge[2] ; prop <- edge[3]
 
@@ -131,13 +140,13 @@ parse_dot <- function(text) {
         if (grepl(".*%", prop)) { # Check if we have a percentage number
             edge_name <- paste0(from, "_", to)
             admix_prop <- as.numeric(sub("%","",gsub('"','',prop))) / 100
-            admixture_vars <- CONS(edge_name, admixture_vars)
-            admixture_props <- CONS(admix_prop, admixture_props)
+            admixture_vars <- matchbox::CONS(edge_name, admixture_vars)
+            admixture_props <- matchbox::CONS(admix_prop, admixture_props)
         }
         edges <- edges$cdr
     }
 
-    if (ll_is_nil(admixture_vars)) {
+    if (matchbox::ll_is_nil(admixture_vars)) {
         admixture_proportions <- numeric(0)
     } else {
         admixture_proportions <- as.vector(admixture_props)

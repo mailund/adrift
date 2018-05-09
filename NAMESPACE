@@ -2,6 +2,5 @@
 
 export(Graph)
 export(parse_dot)
-import(matchbox)
 importFrom(Rcpp,sourceCpp)
 useDynLib(adrift, .registration = TRUE)
