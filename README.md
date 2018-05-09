@@ -7,7 +7,7 @@
 [![lifecycle](http://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![Project Status:
 Active](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
-[![Last-changedate](https://img.shields.io/badge/last%20change-2018--05--08-green.svg)](/commits/master)
+[![Last-changedate](https://img.shields.io/badge/last%20change-2018--05--09-green.svg)](/commits/master)
 [![packageversion](https://img.shields.io/badge/Package%20version-0.0.0.9000-orange.svg?style=flat-square)](commits/master)
 [![Travis build
 status](https://travis-ci.org/mailund/adrift.svg?branch=master)](https://travis-ci.org/mailund/adrift)
@@ -47,30 +47,23 @@ devtools::install_github("mailund/adrift")
 
 ``` r
 library(magrittr)
-library(ggplot2)
-library(ggraph)
-library(matchbox)
 library(adrift)
 #> Loading required package: Rcpp
 
-ag_layout <- function(graph, circular, ...) {
-    g$layout()
-    cbind(g$get_node_positions() %>% dplyr::select(x, y),
-          graph, circular = NA)
-}
-
-g <- parse_dot(readr::read_file("data-raw/Basic_OngeEA_wArch.dot"))
-graph <- tidygraph::tbl_graph(nodes = g$get_ggraph_nodes(),
-                              edges = g$get_ggraph_edges())
-graph %>%
-    ggraph(ag_layout) +
-    geom_edge_link(edge_width = 0.8, edge_colour = "darkblue") +
-    geom_node_text(aes(filter = is_leaf, label = label),
-                   size = 4, nudge_y = -0.4, angle = -10) +
-    geom_node_label(aes(filter = !is_leaf, label = label),
-                    size = 3, nudge_y = -0.1, repel = TRUE) +
-    coord_cartesian(clip = "off") +
-    theme_graph()
+graph <- parse_dot(readr::read_file("data-raw/Basic_OngeEA_wArch.dot"))
+graph %>% 
+    make_graph_plot() %>%
+    show_leaf_labels(nudge_y = -0.5) %>%
+    show_inner_node_labels()
 ```
 
 <img src="man/figures/README-unnamed-chunk-1-1.png" width="100%" />
+
+``` r
+graph <- parse_dot(readr::read_file("data-raw/BosGraph.dot"))
+graph %>% 
+    make_graph_plot(edge_colour = "red") %>%
+    show_leaf_labels(angle = -90, size = 2.8, nudge_y = -1, hjust = 0)
+```
+
+<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />

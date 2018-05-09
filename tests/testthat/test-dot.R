@@ -137,6 +137,24 @@ E -> F;
 '
 
 test_that("we can parse a .dot file", {
+    if (!requireNamespace("minilexer")) {
+        skip("Parsers require the minilexer package, which is not installed")
+        return()
+    }
+    res <- tryCatch({
+        loadNamespace(
+            "matchbox",
+            versionCheck = list(op = ">=", version = "0.0.0.9004")
+        )
+        TRUE
+    },
+    error = function(e) { skip(e) ; FALSE }
+    )
+    if (!res) {
+        return()
+    }
+
+
     graph <- parse_dot(test_graph)
     expect_equal(graph$no_nodes, 25)
     admix_props <- attr(graph, "admixture_proportions")
@@ -154,6 +172,23 @@ test_that("we can parse a .dot file", {
 })
 
 test_that("we can handle parse errors", {
+    if (!requireNamespace("minilexer")) {
+        skip("Parsers require the minilexer package, which is not installed")
+        return()
+    }
+    res <- tryCatch({
+        loadNamespace(
+            "matchbox",
+            versionCheck = list(op = ">=", version = "0.0.0.9004")
+        )
+        TRUE
+    },
+        error = function(e) { skip(e) ; FALSE }
+    )
+    if (!res) {
+        return()
+    }
+
     expect_error(parse_dot("foo bar baz"))
     expect_error(parse_dot("digraph Foo { blah blah }"))
 })

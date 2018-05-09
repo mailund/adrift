@@ -114,16 +114,16 @@ dot_parse_graph <- function(text) {
 #' @param text Text containing the graph description.
 #' @export
 parse_dot <- function(text) {
-    if (!requireNamespace("minilexer")) {
-        skip("Parsers require the minilexer package, which is not installed")
-        return(NULL)
+    # nocov start
+    if (!requireNamespace("minilexer", quietly = TRUE)) {
+        stop("Parsers require the minilexer package, which is not installed")
     }
-    if (!requireNamespace("matchbox",
-                          versionCheck = list(op = ">=", version = "0.2.0.9004")
+    if (!requireNamespace("matchbox", quietly = TRUE,
+                          versionCheck = list(op = ">=", version = "0.0.0.9004")
                           )) {
-        skip("Parsers require package matchbox (>= 0.0.0.9004)")
-        return(NULL)
+        stop("Parsers require package matchbox (>= 0.0.0.9004)")
     }
+    # nocov end
 
     graph <- new(Graph)
     edges <- dot_parse_graph(text)
