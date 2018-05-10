@@ -312,7 +312,8 @@ DataFrame Graph::get_ggraph_edges() const
 {
     CharacterVector from(edges.size()), to(edges.size());
     CharacterVector edge_id(edges.size());
-    LogicalVector admixture_edge(edges.size()); // FIXME: remember vars
+    LogicalVector admixture_edge(edges.size()); // FIXME: remember vars id:9
+                                                // https://github.com/mailund/adrift/issues/24
     for (int i = 0; i < edges.size(); ++i) {
         std::pair<unsigned int,unsigned int> edge = edges[i];
         const Node &parent = nodes[edge.first];
