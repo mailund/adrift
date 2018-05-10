@@ -80,3 +80,32 @@ graph %>%
     make_graph_plot(edge_colour = "red") %>%
     show_leaf_labels(angle = -90, size = 2.8, nudge_y = -1, hjust = 0)
 ```
+
+```{r}
+graph <- parse_qpgraph(readr::read_file("data-raw/Basic_OngeEA_wArch.graph"))
+plt <- graph %>%
+    make_graph_plot(
+        ggplot2::aes(filter = !admixed),
+        edge_colour = "darkblue"
+    ) %>%
+    show_leaf_labels(nudge_y = -0.5, angle = 15)
+
+admixture_vars <- c(
+    "P_P2" = "alpha",
+    "K_K2" = "beta",
+    "AfrAnc_AdmixedNonAfr" = "gamma",
+    "SuperArch_DenisovaAncAnc" = "delta"
+)
+plt %>% add_admixture_labels(
+    admixture_vars,
+    linetype = "dotted",
+    colour = "darkred"
+)
+
+plt %>% add_admixture_labels(
+    attr(graph, "admixture_proportions"),
+    label_size = 3,
+    linetype = "dashed",
+    colour = "darkgray"
+)
+```

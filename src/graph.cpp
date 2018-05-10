@@ -289,32 +289,47 @@ DataFrame Graph::get_node_positions() const
         x[i] = n.get_x();
         y[i] = n.get_y();
     }
-    return DataFrame::create(Named("label") = label,
-                             Named("x") = x, Named("y") = y,
-                             Named("stringsAsFactors") = false);
+    DataFrame df =
+        DataFrame::create(Named("label") = label,
+                          Named("x") = x, Named("y") = y,
+                          _["stringsAsFactors"] = false);
+    df.attr("row.names") = label;
+    return df;
 }
 
 DataFrame Graph::get_ggraph_nodes() const
 {
     CharacterVector node_names(get_node_names());
-    return DataFrame::create(Named("label") = node_names,
-                             Named("is_leaf") = get_leaf_status(),
-                             Named("stringsAsFactors") = false);
+    DataFrame df =
+        DataFrame::create(Named("label") = node_names,
+                          Named("is_leaf") = get_leaf_status(),
+                          Named("stringsAsFactors") = false);
+    df.attr("rown.names") = node_names;
+    return df;
 }
 
 DataFrame Graph::get_ggraph_edges() const
 {
     CharacterVector from(edges.size()), to(edges.size());
+    CharacterVector edge_id(edges.size());
+    LogicalVector admixture_edge(edges.size()); // FIXME: remember vars
     for (int i = 0; i < edges.size(); ++i) {
         std::pair<unsigned int,unsigned int> edge = edges[i];
         const Node &parent = nodes[edge.first];
         const Node &child = nodes[edge.second];
         from[i] = parent.name;
         to[i] = child.name;
+        edge_id[i] = parent.name + "_" + child.name;
+        admixture_edge[i] = child.is_admixed();
     }
-    return DataFrame::create(Named("from") = from,
-                             Named("to") = to,
-                             Named("stringsAsFactors") = false);
+    DataFrame df =
+        DataFrame::create(Named("from") = from,
+                          Named("to") = to,
+                          Named("edge.id") = edge_id,
+                          Named("admixed") = admixture_edge,
+                          _["stringsAsFactors"] = false);
+    df.attr("row.names") = edge_id;
+    return df;
 }
 
 

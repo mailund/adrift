@@ -2,6 +2,7 @@
 
 export("%>%")
 export(Graph)
+export(add_admixture_labels)
 export(make_graph_plot)
 export(parse_dot)
 export(parse_qpgraph)

@@ -36,7 +36,7 @@ make_graph_plot <- function(graph, ...) {
     tidygraph::tbl_graph(nodes = graph$get_ggraph_nodes(),
                          edges = graph$get_ggraph_edges()) %>%
         ggraph::ggraph(ag_layout(graph)) +
-        ggraph::geom_edge_link(edge_width = 0.8, ...) +
+        ggraph::geom_edge_link(...) +
         ggplot2::coord_cartesian(clip = "off") +
         ggraph::theme_graph()
 }
@@ -71,5 +71,29 @@ show_inner_node_labels <- function(plt, ...) {
                                   size = 3, nudge_y = -0.1, repel = TRUE,
                                   ...)
 }
+
+#' Add admixture proprortions or admixture variables to a plot.
+#'
+#' @param plt A graph plot.
+#' @param mapping A mapping from edge ids to the labels to add.
+#' @param ... Parameters that will be forwarded to [ggraph::geom_edge_link()].
+#' @return An updated plot.
+#' @export
+add_admixture_labels <- function(plt, mapping, ...) {
+    admixed <- label <- NULL # to satisfy CMD CHECK
+    map_label <- function(edge.id) {
+        edges <- as.character(edge.id) # because ggraph maps to factors
+        mapping[edges] %>% unname()
+    }
+    plt + ggraph::geom_edge_link(
+        ggplot2::aes(
+            filter = admixed,
+            label = map_label(edge.id)
+        ),
+        label_parse = TRUE,
+        ...
+    )
+}
+
 
 # nocov end

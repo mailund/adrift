@@ -27,8 +27,9 @@ public:
     void set_x(double new_x) { x = new_x; }
     void reset()             { dist_to_leaf = -1; x = -1; }
 
-    bool is_leaf() const { return children.empty(); }
-    bool is_root() const { return parents.empty(); }
+    bool is_leaf()    const { return children.empty(); }
+    bool is_root()    const { return parents.empty(); }
+    bool is_admixed() const { return parents.size() > 1; }
 };
 
 class Graph {

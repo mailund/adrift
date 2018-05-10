@@ -2,6 +2,10 @@ language: R
 sudo: true
 cache: packages
 
+addons:
+    apt:
+      update: true
+
 apt_packages:
   - libudunits2-dev
 
@@ -11,7 +15,7 @@ r:
   - 3.4
   - oldrel
   - release
-# - devel
+ - devel
 
 after_success:
   - Rscript -e 'covr::codecov()'

@@ -7,7 +7,7 @@
 [![lifecycle](http://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![Project Status:
 Active](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
-[![Last-changedate](https://img.shields.io/badge/last%20change-2018--05--09-green.svg)](/commits/master)
+[![Last-changedate](https://img.shields.io/badge/last%20change-2018--05--10-green.svg)](/commits/master)
 [![packageversion](https://img.shields.io/badge/Package%20version-0.0.0.9000-orange.svg?style=flat-square)](commits/master)
 [![Travis build
 status](https://travis-ci.org/mailund/adrift.svg?branch=master)](https://travis-ci.org/mailund/adrift)
@@ -80,3 +80,39 @@ graph %>%
 ```
 
 <img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+
+``` r
+graph <- parse_qpgraph(readr::read_file("data-raw/Basic_OngeEA_wArch.graph"))
+plt <- graph %>%
+    make_graph_plot(
+        ggplot2::aes(filter = !admixed),
+        edge_colour = "darkblue"
+    ) %>%
+    show_leaf_labels(nudge_y = -0.5, angle = 15)
+
+admixture_vars <- c(
+    "P_P2" = "alpha",
+    "K_K2" = "beta",
+    "AfrAnc_AdmixedNonAfr" = "gamma",
+    "SuperArch_DenisovaAncAnc" = "delta"
+)
+plt %>% add_admixture_labels(
+    admixture_vars,
+    linetype = "dotted",
+    colour = "darkred"
+)
+```
+
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
+
+``` r
+
+plt %>% add_admixture_labels(
+    attr(graph, "admixture_proportions"),
+    label_size = 3,
+    linetype = "dashed",
+    colour = "darkgray"
+)
+```
+
+<img src="man/figures/README-unnamed-chunk-4-2.png" width="100%" />
