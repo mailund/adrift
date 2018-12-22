@@ -18,10 +18,15 @@
       "IDEA",
       "NOTE",
       "REVIEW",
-      "MARK"
+      "MARK",
+      "HELP"
     ]
   },
   "lists": [
+    {
+      "name": "HELP",
+      "hidden": false
+    },
     {
       "name": "FIXME",
       "hidden": false
@@ -39,5 +44,6 @@
     "id": "5aec1a061da75f079543705b",
     "name": "mailund/adrift",
     "useImdoneioForPriority": true
-  }
+  },
+  "noHelp": true
 }
