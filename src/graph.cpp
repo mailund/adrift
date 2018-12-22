@@ -195,7 +195,8 @@ void Graph::compute_forces(std::vector<double> &x, double drag)
             Node &a = nodes[i];
             Node &b = nodes[j];
 
-            // FIXME: better to compute levels first than go over all pairs https://github.com/mailund/adrift/issues/10 id:8
+            // FIXME: better to compute levels first than go over all pairs id:8
+            // https://github.com/mailund/adrift/issues/10
             if (a.get_y() != b.get_y()) continue;
 
             // v - vector from b to a
